@@ -12,11 +12,11 @@ class Projects {
 
   setProjects(camera) {
     const geometry = new THREE.BoxBufferGeometry(0.8, 0.8, 0.05);
-    const material = new THREE.MeshBasicMaterial({ color: "#ff0000" });
+    const material = new THREE.MeshBasicMaterial({ color: "#ffffff" });
 
     for (let i = 0; i < 10; i++) {
       const mesh = new THREE.Mesh(geometry, material);
-      const pos = Path.getPointAt((i / 100) % 1);
+      const pos = Path.getPointAt((i / 100 + 0.001) % 1);
 
       mesh.position.set(pos.x, pos.y, pos.z);
       mesh.lookAt(camera.position);

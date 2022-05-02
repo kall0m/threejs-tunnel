@@ -47,7 +47,7 @@ class SceneManager {
     const fieldOfView = 45;
     const aspectRatio = SIZES.width / SIZES.height;
     const nearPlane = 0.1;
-    const farPlane = 400;
+    const farPlane = 100;
 
     const camera = new THREE.PerspectiveCamera(
       fieldOfView,
@@ -56,7 +56,7 @@ class SceneManager {
       farPlane
     );
 
-    camera.position.set(0, 0, -10);
+    camera.position.set(0, 0, -3);
 
     const controls = new OrbitControls(camera, this.renderer.domElement);
 

@@ -1,6 +1,8 @@
 import * as THREE from "three";
 
 const points = [
+  [0, 0],
+  [1, 245],
   [68, 185],
   [1, 262],
   [270, 281],
