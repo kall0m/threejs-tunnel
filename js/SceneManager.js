@@ -1,6 +1,8 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import SceneSubject from "./world/sceneSubjects/SceneSubject.js";
+import Tunnel from "./world/sceneSubjects/Tunnel.js";
 
 const SIZES = {
   width: window.innerWidth,
@@ -54,14 +56,16 @@ class SceneManager {
       farPlane
     );
 
-    camera.position.set(0, 0, 10);
+    camera.position.set(0, 0, -10);
+
+    const controls = new OrbitControls(camera, this.renderer.domElement);
 
     return camera;
   }
 
   createSceneSubjects() {
     // add new SceneSubjects to the scene
-    const sceneSubjects = [new SceneSubject()];
+    const sceneSubjects = [new SceneSubject(), new Tunnel(this.camera)];
 
     sceneSubjects.forEach((sceneSubject) => {
       this.scene.add(sceneSubject.container);
