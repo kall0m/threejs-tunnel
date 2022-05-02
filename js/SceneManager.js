@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-import SceneSubject from "./world/sceneSubjects/SceneSubject.js";
 import Tunnel from "./world/sceneSubjects/Tunnel.js";
+import Projects from "./world/sceneSubjects/Projects.js";
 
 const SIZES = {
   width: window.innerWidth,
@@ -65,7 +65,7 @@ class SceneManager {
 
   createSceneSubjects() {
     // add new SceneSubjects to the scene
-    const sceneSubjects = [new SceneSubject(), new Tunnel(this.camera)];
+    const sceneSubjects = [new Tunnel(this.camera), new Projects(this.camera)];
 
     sceneSubjects.forEach((sceneSubject) => {
       this.scene.add(sceneSubject.container);
