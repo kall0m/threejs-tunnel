@@ -64,7 +64,7 @@ class SceneManager {
     const sceneSubjects = [new SceneSubject()];
 
     sceneSubjects.forEach((sceneSubject) => {
-      this.scene.add(sceneSubject.mesh);
+      this.scene.add(sceneSubject.container);
     });
 
     return sceneSubjects;

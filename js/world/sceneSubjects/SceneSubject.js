@@ -6,19 +6,26 @@ const SPEED = 0.01;
 
 class SceneSubject {
   constructor() {
+    this.container = new THREE.Object3D();
+    this.container.matrixAutoUpdate = false;
+
+    this.setSceneSubject();
+  }
+
+  setSceneSubject() {
     const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({ color: "#ffffff" });
+    const mesh = new THREE.Mesh(geometry, material);
 
-    this.mesh = new THREE.Mesh(geometry, material);
-    this.mesh.matrixAutoUpdate = false;
+    this.container.add(mesh);
   }
 
   update() {
-    this.mesh.rotation.x -= SPEED * 2;
-    this.mesh.rotation.y -= SPEED;
-    this.mesh.rotation.z -= SPEED * 3;
+    this.container.rotation.x -= SPEED * 2;
+    this.container.rotation.y -= SPEED;
+    this.container.rotation.z -= SPEED * 3;
 
-    this.mesh.updateMatrix();
+    this.container.updateMatrix();
   }
 }
 
