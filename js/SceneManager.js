@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import SceneSubject from "./sceneSubjects/SceneSubject.js";
+import SceneSubject from "./world/sceneSubjects/SceneSubject.js";
 
 const SIZES = {
   width: window.innerWidth,
@@ -61,7 +61,11 @@ class SceneManager {
 
   createSceneSubjects() {
     // add new SceneSubjects to the scene
-    const sceneSubjects = [new SceneSubject(this.scene)];
+    const sceneSubjects = [new SceneSubject()];
+
+    sceneSubjects.forEach((sceneSubject) => {
+      this.scene.add(sceneSubject.mesh);
+    });
 
     return sceneSubjects;
   }
