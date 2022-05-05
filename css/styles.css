@@ -12,3 +12,24 @@ html {
   top: 0;
   left: 0;
 }
+
+.title {
+  font-size: 72px;
+  color: white;
+  position: absolute;
+  top: 37%;
+  left: 25%;
+}
+
+.go-btn {
+  background-color: lightseagreen; /* Green */
+  border: none;
+  color: black;
+  padding: 30px;
+  font-size: 16px;
+  border-radius: 50%;
+  position: absolute;
+  top: 46%;
+  right: 25%;
+  pointer: cursor;
+}
