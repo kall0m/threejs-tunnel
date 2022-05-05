@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { gsap } from "gsap";
-import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 
 import Tunnel from "./world/sceneSubjects/Tunnel.js";
 import Path from "./world/Path.js";
@@ -28,9 +27,22 @@ class SceneManager {
     this.tunnelRings = [];
     this.sceneSubjects = this.createSceneSubjects();
 
+    this.selectedProject = this.projectsContainer.projects[0];
+    this.selectedProject.animate();
+
+    this.camAnim = null;
+
     this.positionCamera();
 
-    gsap.registerPlugin(MotionPathPlugin);
+    this.camAnim = gsap.to(this.camera.position, {
+      duration: "1",
+      ease: "power2.inOut",
+      yoyoEase: "power2.inOut",
+      repeat: -1,
+      x: "+=random(-0.1,0.1)",
+      y: "+=random(-0.1,0.1)",
+      z: "+=random(-0.1,0.1)"
+    });
   }
 
   update() {
@@ -73,7 +85,7 @@ class SceneManager {
       farPlane
     );
 
-    //let controls = new OrbitControls(camera, this.renderer.domElement);
+    let controls = new OrbitControls(camera, this.renderer.domElement);
 
     // const helper = new THREE.CameraHelper(camera);
     // this.scene.add(helper);
@@ -134,8 +146,8 @@ class SceneManager {
 
       projectCounter %= this.projectsContainer.projects.length;
 
-      const nextProjectPathPos = this.projectsContainer.projects[projectCounter]
-        .pathPos;
+      this.selectedProject = this.projectsContainer.projects[projectCounter];
+      const nextProjectPathPos = this.selectedProject.pathPos;
 
       var p1 = Path.getPointAt(nextProjectPathPos - 0.005);
 
@@ -145,16 +157,30 @@ class SceneManager {
         x: p1.x,
         y: p1.y,
         z: p1.z,
+        onStart: () => {
+          if (this.camAnim) {
+            this.camAnim.kill();
+          }
+        },
         onUpdate: () => {
           var p2 = Path.getPointAt(nextProjectPathPos);
           this.camera.lookAt(p2);
 
-          this.projectsContainer.projects[projectCounter].mesh.lookAt(
-            this.camera.position
-          );
+          this.selectedProject.mesh.lookAt(this.camera.position);
         },
         onComplete: () => {
           prevComplete = true;
+          this.selectedProject.animate();
+
+          this.camAnim = gsap.to(this.camera.position, {
+            duration: "1",
+            ease: "power2.inOut",
+            yoyoEase: "power2.inOut",
+            repeat: -1,
+            x: "+=random(-0.1,0.1)",
+            y: "+=random(-0.1,0.1)",
+            z: "+=random(-0.1,0.1)"
+          });
         }
       });
     }

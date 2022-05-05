@@ -39,7 +39,11 @@ class ProjectsContainer {
     scene.add(this.container);
   }
 
-  update() {}
+  update() {
+    // for (let i = 0; i < this.projects.length; i++) {
+    //   this.projects[i].update();
+    // }
+  }
 }
 
 export default ProjectsContainer;
