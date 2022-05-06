@@ -4,9 +4,11 @@ import { gsap } from "gsap";
 import Path from "../Path.js";
 
 class Project {
-  constructor(pathPos, color, camera) {
+  constructor(title, pathPos, color, img, camera) {
+    this.title = title;
     this.pathPos = pathPos;
     this.color = color;
+    this.img = img;
     this.isSelected = false;
 
     this.mesh = new THREE.Object3D();
@@ -15,10 +17,15 @@ class Project {
   }
 
   setProject(camera) {
-    const geometry = new THREE.PlaneGeometry(4, 2.5);
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load(this.img);
+
+    const geometry = new THREE.PlaneGeometry(4, 2.25);
     const mesh = new THREE.Mesh(
       geometry,
-      new THREE.MeshBasicMaterial({ color: this.color })
+      new THREE.MeshBasicMaterial({
+        map: texture
+      })
     );
 
     const pos = Path.getPointAt(this.pathPos);

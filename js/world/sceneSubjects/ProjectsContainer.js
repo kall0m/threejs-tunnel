@@ -15,6 +15,32 @@ const colors = [
   "#1252c8"
 ];
 
+const images = [
+  "https://i.imgur.com/j9kOzZS.png",
+  "https://i.imgur.com/KksqRGy.png",
+  "https://i.imgur.com/EzLK14L.png",
+  "https://i.imgur.com/Q5fi7iz.jpg",
+  "https://i.imgur.com/KULOaQM.png",
+  "https://i.imgur.com/873lbha.png",
+  "https://i.imgur.com/K8aqfNC.png",
+  "https://miro.medium.com/max/1400/1*7rSJDJ-oA-HX4WCtjNbsIQ.png",
+  "https://media-exp1.licdn.com/dms/image/C4E12AQGcZRe1WlhJZg/article-cover_image-shrink_600_2000/0/1632262281314?e=2147483647&v=beta&t=W1yykArfH4_bu0HWn68SYqVsqzLOVt8kT6fsuOhAAuU",
+  "https://www.gannett-cdn.com/-mm-/01b3f144eb141b8cf7f41fc13e2b94d422d4e858/c=61-0-1862-1018/local/-/media/IAGroup/DesMoines/2014/09/22/1411405133000-Day4Globe.jpg"
+];
+
+const titles = [
+  "Connected Mine",
+  "Accenture Virtual Experience Solution (AVEnueS)",
+  "Damen Shipyards",
+  "EV Box VR Simulation",
+  "Hololens Surgery",
+  "Future Hyperloop Traveler",
+  "VR Tetris",
+  "Mystical Well",
+  "Accenture One Space",
+  "Random VR Project"
+];
+
 class ProjectsContainer {
   constructor(scene, camera) {
     this.camera = camera;
@@ -30,7 +56,13 @@ class ProjectsContainer {
     for (let i = 0; i < colors.length; i++) {
       const pathPos = ((i / 20) % 1) + 0.01;
 
-      const project = new Project(pathPos, colors[i], camera);
+      const project = new Project(
+        titles[i],
+        pathPos,
+        colors[i],
+        images[i],
+        camera
+      );
 
       this.projects.push(project);
       this.container.add(project.mesh);

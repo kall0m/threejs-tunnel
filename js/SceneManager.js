@@ -43,6 +43,8 @@ class SceneManager {
       y: "+=random(-0.1,0.1)",
       z: "+=random(-0.1,0.1)"
     });
+
+    document.getElementById("title").innerHTML = this.selectedProject.title;
   }
 
   update() {
@@ -85,7 +87,7 @@ class SceneManager {
       farPlane
     );
 
-    let controls = new OrbitControls(camera, this.renderer.domElement);
+    //let controls = new OrbitControls(camera, this.renderer.domElement);
 
     // const helper = new THREE.CameraHelper(camera);
     // this.scene.add(helper);
@@ -181,6 +183,10 @@ class SceneManager {
             y: "+=random(-0.1,0.1)",
             z: "+=random(-0.1,0.1)"
           });
+
+          document.getElementById(
+            "title"
+          ).innerHTML = this.selectedProject.title;
         }
       });
     }
