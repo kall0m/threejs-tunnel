@@ -13,7 +13,7 @@ class Tunnel {
   }
 
   setTunnel(scene, camera) {
-    const geometry1 = new THREE.RingGeometry(5, 5.02, 128);
+    const geometry1 = new THREE.RingGeometry(5, 5.02, 6);
 
     const material = new THREE.MeshBasicMaterial({
       color: "#ffffff"

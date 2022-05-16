@@ -3,6 +3,11 @@ import SceneManager from "./SceneManager.js";
 const canvas = document.querySelector("canvas.webgl");
 const sceneManager = new SceneManager(canvas);
 
+let touchstartX = 0;
+let touchstartY = 0;
+let touchendX = 0;
+let touchendY = 0;
+
 bindEventListeners();
 render();
 
@@ -11,7 +16,9 @@ function bindEventListeners() {
   resizeCanvas();
 
   window.onwheel = wheelCanvas;
-  window.ontouchmove = wheelCanvas;
+
+  window.ontouchstart = touchstartCanvas;
+  window.ontouchend = touchendCanvas;
 }
 
 function resizeCanvas() {
@@ -20,6 +27,18 @@ function resizeCanvas() {
 
 function wheelCanvas(event) {
   sceneManager.onWindowWheel(event);
+}
+
+function touchstartCanvas(event) {
+  touchstartX = event.changedTouches[0].screenX;
+  touchstartY = event.changedTouches[0].screenY;
+}
+
+function touchendCanvas(event) {
+  touchendX = event.changedTouches[0].screenX;
+  touchendY = event.changedTouches[0].screenY;
+
+  sceneManager.handleGesture(touchstartX, touchstartY, touchendX, touchendY);
 }
 
 function render() {

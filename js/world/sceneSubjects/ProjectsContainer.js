@@ -30,7 +30,7 @@ const images = [
 
 const titles = [
   "Connected Mine",
-  "Accenture Virtual Experience Solution (AVEnueS)",
+  "AVEnueS",
   "Damen Shipyards",
   "EV Box VR Simulation",
   "Hololens Surgery",
@@ -53,7 +53,7 @@ class ProjectsContainer {
   }
 
   setProjectsContainer(scene, camera) {
-    for (let i = 0; i < colors.length; i++) {
+    for (let i = 0; i < 10; i++) {
       const pathPos = ((i / 20) % 1) + 0.01;
 
       const project = new Project(
@@ -66,6 +66,7 @@ class ProjectsContainer {
 
       this.projects.push(project);
       this.container.add(project.mesh);
+      this.container.add(project.title);
     }
 
     scene.add(this.container);

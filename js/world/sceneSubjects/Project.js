@@ -1,5 +1,7 @@
 import * as THREE from "three";
+
 import { gsap } from "gsap";
+import { Text } from "troika-three-text";
 
 import Path from "../Path.js";
 
@@ -28,12 +30,28 @@ class Project {
       })
     );
 
+    const title = new Text();
+
+    // Set properties to configure:
+    title.text = this.title;
+    title.font = "../../../fonts/VectoraLTStd-Bold.woff";
+    title.fontSize = 0.4;
+    title.color = "#ffffff";
+    title.maxWidth = 2;
+
+    // Update the rendering:
+    title.sync();
+
     const pos = Path.getPointAt(this.pathPos);
 
-    mesh.position.set(pos.x, pos.y, pos.z);
+    mesh.position.set(pos.x, pos.y - 1.3, pos.z);
     mesh.lookAt(camera.position);
 
+    title.position.set(pos.x, pos.y - 1.3, pos.z - 1);
+    title.lookAt(camera.position);
+
     this.mesh = mesh;
+    this.title = title;
   }
 
   animate() {

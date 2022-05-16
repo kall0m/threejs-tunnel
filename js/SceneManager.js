@@ -16,6 +16,7 @@ let projectCounter = 0;
 let cameraPathPos = 0;
 
 let prevComplete = true;
+let isForward = false;
 
 class SceneManager {
   constructor(canvas) {
@@ -27,8 +28,8 @@ class SceneManager {
     this.tunnelRings = [];
     this.sceneSubjects = this.createSceneSubjects();
 
-    this.selectedProject = this.projectsContainer.projects[0];
-    this.selectedProject.animate();
+    this.nextProjectInView = this.projectsContainer.projects[0];
+    this.nextProjectInView.animate();
 
     this.camAnim = null;
 
@@ -44,7 +45,7 @@ class SceneManager {
       z: "+=random(-0.1,0.1)"
     });
 
-    document.getElementById("title").innerHTML = this.selectedProject.title;
+    //document.getElementById("title").innerHTML = this.selectedProject.title;
   }
 
   update() {
@@ -139,57 +140,97 @@ class SceneManager {
       // Check if scrolled up or down
       if (event.deltaY > 0) {
         projectCounter++;
+        isForward = true;
       } else {
         projectCounter--;
         if (projectCounter < 0) {
           projectCounter = this.projectsContainer.projects.length - 1;
         }
+        isForward = false;
       }
 
-      projectCounter %= this.projectsContainer.projects.length;
-
-      this.selectedProject = this.projectsContainer.projects[projectCounter];
-      const nextProjectPathPos = this.selectedProject.pathPos;
-
-      var p1 = Path.getPointAt(nextProjectPathPos - 0.005);
-
-      gsap.to(this.camera.position, {
-        duration: 1,
-        ease: "slow(0.9, 0.2, false)",
-        x: p1.x,
-        y: p1.y,
-        z: p1.z,
-        onStart: () => {
-          if (this.camAnim) {
-            this.camAnim.kill();
-          }
-        },
-        onUpdate: () => {
-          var p2 = Path.getPointAt(nextProjectPathPos);
-          this.camera.lookAt(p2);
-
-          this.selectedProject.mesh.lookAt(this.camera.position);
-        },
-        onComplete: () => {
-          prevComplete = true;
-          this.selectedProject.animate();
-
-          this.camAnim = gsap.to(this.camera.position, {
-            duration: "1",
-            ease: "power2.inOut",
-            yoyoEase: "power2.inOut",
-            repeat: -1,
-            x: "+=random(-0.1,0.1)",
-            y: "+=random(-0.1,0.1)",
-            z: "+=random(-0.1,0.1)"
-          });
-
-          document.getElementById(
-            "title"
-          ).innerHTML = this.selectedProject.title;
-        }
-      });
+      this.scrollProject();
     }
+  }
+
+  handleGesture(touchstartX, touchstartY, touchendX, touchendY) {
+    if (prevComplete) {
+      prevComplete = false;
+
+      const delx = touchendX - touchstartX;
+      const dely = touchendY - touchstartY;
+
+      if (Math.abs(delx) < Math.abs(dely)) {
+        if (dely > 0) {
+          projectCounter++;
+          isForward = true;
+        } else {
+          projectCounter--;
+          if (projectCounter < 0) {
+            projectCounter = this.projectsContainer.projects.length - 1;
+          }
+          isForward = false;
+        }
+
+        this.scrollProject();
+      } else {
+        prevComplete = true;
+      }
+    }
+  }
+
+  scrollProject() {
+    projectCounter %= this.projectsContainer.projects.length;
+
+    this.nextProjectInView = this.projectsContainer.projects[projectCounter];
+    const nextProjectInViewPathPos = this.nextProjectInView.pathPos;
+
+    var p1 = Path.getPointAt(nextProjectInViewPathPos - 0.005);
+
+    gsap.to(this.camera.position, {
+      duration: 1,
+      ease: "slow(0.9, 0.2, false)",
+      x: p1.x,
+      y: p1.y,
+      z: p1.z,
+      onStart: () => {
+        if (this.camAnim) {
+          this.camAnim.kill();
+        }
+      },
+      onUpdate: () => {
+        var p2 = Path.getPointAt(nextProjectInViewPathPos);
+
+        if (!isForward) {
+          if (projectCounter + 1 < this.projectsContainer.projects.length) {
+            p2 = Path.getPointAt(
+              this.projectsContainer.projects[projectCounter + 1].pathPos
+            );
+          }
+        }
+
+        this.camera.lookAt(p2);
+      },
+      onComplete: () => {
+        var p2 = Path.getPointAt(nextProjectInViewPathPos);
+        this.camera.lookAt(p2);
+
+        prevComplete = true;
+        this.nextProjectInView.animate();
+
+        this.camAnim = gsap.to(this.camera.position, {
+          duration: "1",
+          ease: "power2.inOut",
+          yoyoEase: "power2.inOut",
+          repeat: -1,
+          x: "+=random(-0.1,0.1)",
+          y: "+=random(-0.1,0.1)",
+          z: "+=random(-0.1,0.1)"
+        });
+
+        //document.getElementById("title").innerHTML = this.selectedProject.title;
+      }
+    });
   }
 }
 
