@@ -7,6 +7,9 @@ import Tunnel from "./world/sceneSubjects/Tunnel.js";
 import Path from "./world/Path.js";
 import ProjectsContainer from "./world/sceneSubjects/ProjectsContainer.js";
 
+import Bender from "./bender.js";
+const bender = new Bender();
+
 const SIZES = {
   width: window.innerWidth,
   height: window.innerHeight
@@ -17,6 +20,9 @@ let cameraPathPos = 0;
 
 let prevComplete = true;
 let isForward = false;
+
+let bentBox = new THREE.BoxBufferGeometry(3, 2, 1, 10, 10, 10);
+let bentMesh;
 
 class SceneManager {
   constructor(canvas) {
@@ -88,10 +94,8 @@ class SceneManager {
       farPlane
     );
 
-    //let controls = new OrbitControls(camera, this.renderer.domElement);
-
-    // const helper = new THREE.CameraHelper(camera);
-    // this.scene.add(helper);
+    let controls = new OrbitControls(camera, this.renderer.domElement);
+    controls.enabled = false;
 
     return camera;
   }
@@ -117,6 +121,21 @@ class SceneManager {
 
     var p2 = Path.getPointAt(cameraPathPos + 0.01);
     this.camera.lookAt(p2);
+
+    const material = new THREE.MeshLambertMaterial({
+      color: 0x00ff00
+    });
+
+    const light = new THREE.AmbientLight(0x404040); // soft white light
+    light.position.set(p1.x, p1.y, p1.z + 50);
+    this.scene.add(light);
+
+    bentMesh = new THREE.Mesh(bentBox, material);
+
+    this.scene.add(bentMesh);
+
+    bentMesh.position.set(p1.x + 12, p1.y, p1.z + 120);
+    bentMesh.rotation.set(5, 0, 0);
   }
 
   onWindowResize() {
@@ -149,7 +168,7 @@ class SceneManager {
         isForward = false;
       }
 
-      this.scrollProject();
+      this.goToNextProject();
     }
   }
 
@@ -172,14 +191,14 @@ class SceneManager {
           isForward = false;
         }
 
-        this.scrollProject();
+        this.goToNextProject();
       } else {
         prevComplete = true;
       }
     }
   }
 
-  scrollProject() {
+  goToNextProject() {
     projectCounter %= this.projectsContainer.projects.length;
 
     this.nextProjectInView = this.projectsContainer.projects[projectCounter];
@@ -187,9 +206,12 @@ class SceneManager {
 
     var p1 = Path.getPointAt(nextProjectInViewPathPos - 0.005);
 
+    let bend = 0;
+    let bendSpeed = 0.1;
+
     gsap.to(this.camera.position, {
       duration: 1,
-      ease: "slow(0.9, 0.2, false)",
+      ease: "slow(0.7, 0.7, false)",
       x: p1.x,
       y: p1.y,
       z: p1.z,
@@ -206,7 +228,16 @@ class SceneManager {
             p2 = Path.getPointAt(
               this.projectsContainer.projects[projectCounter + 1].pathPos
             );
+
+            bend -= bendSpeed;
+            this.regenerateGeometry(
+              this.projectsContainer.projects[projectCounter + 1].mesh,
+              bend
+            );
           }
+        } else {
+          bend += bendSpeed;
+          this.regenerateGeometry(this.nextProjectInView.mesh, bend);
         }
 
         this.camera.lookAt(p2);
@@ -218,19 +249,47 @@ class SceneManager {
         prevComplete = true;
         this.nextProjectInView.animate();
 
-        this.camAnim = gsap.to(this.camera.position, {
-          duration: "1",
-          ease: "power2.inOut",
-          yoyoEase: "power2.inOut",
-          repeat: -1,
-          x: "+=random(-0.1,0.1)",
-          y: "+=random(-0.1,0.1)",
-          z: "+=random(-0.1,0.1)"
-        });
+        // this.camAnim = gsap.to(this.camera.position, {
+        //   duration: "1",
+        //   ease: "power2.inOut",
+        //   yoyoEase: "power2.inOut",
+        //   repeat: -1,
+        //   x: "+=random(-0.1,0.1)",
+        //   y: "+=random(-0.1,0.1)",
+        //   z: "+=random(-0.1,0.1)"
+        // });
 
-        //document.getElementById("title").innerHTML = this.selectedProject.title;
+        // while (bend > 0) {
+        //   this.regenerateGeometry(bend);
+        //   bend -= bendSpeed;
+        //   console.log(bend);
+        // }
+
+        bend = 0;
+
+        if (!isForward) {
+          if (projectCounter + 1 < this.projectsContainer.projects.length) {
+            this.regenerateGeometry(
+              this.projectsContainer.projects[projectCounter + 1].mesh,
+              bend
+            );
+          }
+        } else {
+          this.regenerateGeometry(this.nextProjectInView.mesh, bend);
+        }
       }
     });
+  }
+
+  regenerateGeometry(mesh, angle) {
+    let newGeometry = new THREE.BoxBufferGeometry(4, 2.25, 1);
+
+    newGeometry.center();
+
+    bender.bend(newGeometry, "x", angle);
+
+    mesh.geometry.dispose();
+    mesh.geometry = newGeometry;
   }
 }
 
