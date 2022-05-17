@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
+import Stats from "three/examples/jsm/libs/stats.module.js";
+
 import { gsap } from "gsap";
 
 import Tunnel from "./world/sceneSubjects/Tunnel.js";
@@ -14,6 +16,8 @@ const SIZES = {
   width: window.innerWidth,
   height: window.innerHeight
 };
+
+const stats = Stats();
 
 let projectCounter = 0;
 let cameraPathPos = 0;
@@ -60,6 +64,8 @@ class SceneManager {
     }
 
     this.renderer.render(this.scene, this.camera);
+
+    stats.update();
   }
 
   buildScene() {
@@ -76,6 +82,8 @@ class SceneManager {
 
     renderer.setSize(SIZES.width, SIZES.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    document.body.appendChild(stats.dom);
 
     return renderer;
   }

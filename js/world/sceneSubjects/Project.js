@@ -5,9 +5,6 @@ import { Text } from "troika-three-text";
 
 import Path from "../Path.js";
 
-import Bender from "../../bender.js";
-const bender = new Bender();
-
 class Project {
   constructor(title, pathPos, color, img, camera) {
     this.title = title;
@@ -26,8 +23,6 @@ class Project {
     const texture = loader.load(this.img);
 
     const geometry = new THREE.BoxBufferGeometry(4, 2.25, 1);
-
-    bender.bend(geometry, "y", 0);
 
     const mesh = new THREE.Mesh(
       geometry,
