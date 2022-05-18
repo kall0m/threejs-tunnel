@@ -203,8 +203,8 @@ class SceneManager {
     let bendSpeed = 0.1;
 
     gsap.to(this.camera.position, {
-      duration: 1,
-      ease: "slow(0.7, 0.7, false)",
+      duration: 2,
+      ease: "elastic.inOut(1, 1)",
       x: p1.x,
       y: p1.y,
       z: p1.z,
@@ -228,13 +228,13 @@ class SceneManager {
             //   bend
             // );
 
-            this.projectsContainer.morph(1, -0.002);
+            this.projectsContainer.morph(0, -0.001);
           }
         } else {
           // bend += bendSpeed;
           // this.regenerateGeometry(this.nextProjectInView.mesh, bend);
 
-          this.projectsContainer.morph(1, 0.002);
+          this.projectsContainer.morph(0, 0.001);
         }
 
         this.camera.lookAt(p2);
@@ -246,7 +246,7 @@ class SceneManager {
         prevComplete = true;
         this.nextProjectInView.update();
 
-        this.projectsContainer.resetMorph(1);
+        this.projectsContainer.resetMorph(0);
 
         // this.camAnim = gsap.to(this.camera.position, {
         //   duration: "1",
@@ -294,8 +294,9 @@ class SceneManager {
   initGUI() {
     // Set up dat.GUI to control targets
     const params = {
-      Spherify: 0,
       Twist: 0,
+      Spherify: 0,
+
       Normal: 0,
       Bend1: 0,
       Bend2: 0
@@ -306,13 +307,13 @@ class SceneManager {
     let mesh = this.nextProjectInView.mesh;
 
     gui
-      .add(params, "Spherify", 0, 1)
+      .add(params, "Twist", 0, 1)
       .step(0.01)
       .onChange(function (value) {
         mesh.morphTargetInfluences[0] = value;
       });
     gui
-      .add(params, "Twist", 0, 1)
+      .add(params, "Spherify", 0, 1)
       .step(0.01)
       .onChange(function (value) {
         mesh.morphTargetInfluences[1] = value;

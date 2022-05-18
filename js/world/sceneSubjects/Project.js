@@ -101,40 +101,40 @@ class Project {
         .toArray(twistPositions, twistPositions.length);
     }
 
-    // add the spherical positions as the first morph target
-    geometry.morphAttributes.position[0] = new THREE.Float32BufferAttribute(
-      spherePositions,
-      3
-    );
-
     // add the twisted positions as the second morph target
-    geometry.morphAttributes.position[1] = new THREE.Float32BufferAttribute(
+    geometry.morphAttributes.position[0] = new THREE.Float32BufferAttribute(
       twistPositions,
       3
     );
 
-    // for the first morph target we'll move the cube's vertices onto the surface of a sphere
-    const bend1Positions = geometry.attributes.position;
-
-    // for the second morph target, we'll twist the cubes vertices
-    const bend2Positions = geometry2.attributes.position;
-
     // add the spherical positions as the first morph target
-    geometry.morphAttributes.position[2] = new THREE.Float32BufferAttribute(
-      positionAttribute,
-      3
-    );
+    // geometry.morphAttributes.position[1] = new THREE.Float32BufferAttribute(
+    //   spherePositions,
+    //   3
+    // );
 
-    // add the twisted positions as the second morph target
-    geometry.morphAttributes.position[3] = new THREE.Float32BufferAttribute(
-      bend1Positions,
-      3
-    );
+    // // for the first morph target we'll move the cube's vertices onto the surface of a sphere
+    // const bend1Positions = geometry.attributes.position;
 
-    geometry.morphAttributes.position[4] = new THREE.Float32BufferAttribute(
-      bend2Positions,
-      3
-    );
+    // // for the second morph target, we'll twist the cubes vertices
+    // const bend2Positions = geometry2.attributes.position;
+
+    // // add the spherical positions as the first morph target
+    // geometry.morphAttributes.position[2] = new THREE.Float32BufferAttribute(
+    //   positionAttribute,
+    //   3
+    // );
+
+    // // add the twisted positions as the second morph target
+    // geometry.morphAttributes.position[3] = new THREE.Float32BufferAttribute(
+    //   bend1Positions,
+    //   3
+    // );
+
+    // geometry.morphAttributes.position[4] = new THREE.Float32BufferAttribute(
+    //   bend2Positions,
+    //   3
+    // );
 
     return geometry;
   }

@@ -53,8 +53,8 @@ class ProjectsContainer {
   }
 
   setProjectsContainer(scene, camera) {
-    for (let i = 0; i < 3; i++) {
-      const pathPos = ((i / 20) % 1) + 0.01;
+    for (let i = 0; i < 10; i++) {
+      const pathPos = ((i / 40) % 1) + 0.01;
 
       const project = new Project(
         titles[i],
