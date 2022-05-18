@@ -37,11 +37,15 @@ class Project {
     const title = new Text();
 
     // Set properties to configure:
-    title.text = this.title;
+    title.text = this.title.toUpperCase();
     title.font = "../../../fonts/VectoraLTStd-Bold.woff";
     title.fontSize = 0.4;
     title.color = "#ffffff";
-    title.maxWidth = 2;
+    title.maxWidth = 3;
+    title.anchorX = "left";
+    title.anchorY = "top";
+    title.letterSpacing = 0;
+    title.lineHeight = 1;
 
     // Update the rendering:
     title.sync();
@@ -51,7 +55,7 @@ class Project {
     mesh.position.set(pos.x, pos.y - 1.3, pos.z);
     mesh.lookAt(camera.position);
 
-    title.position.set(pos.x, pos.y - 1.3, pos.z - 1);
+    title.position.set(pos.x, pos.y - 2.4, pos.z - 1);
     title.lookAt(camera.position);
 
     this.mesh = mesh;
@@ -79,7 +83,7 @@ class Project {
 
     // for the second morph target, we'll twist the cubes vertices
     const twistPositions = [];
-    const direction = new THREE.Vector3(1, 0, 0);
+    const direction = new THREE.Vector3(0, 1, 0);
     const vertex = new THREE.Vector3();
 
     for (let i = 0; i < positionAttribute.count; i++) {
@@ -94,7 +98,7 @@ class Project {
       );
 
       // stretch along the x-axis so we can see the twist better
-      vertex.set(x * 2, y, z);
+      vertex.set(x, y * 2, z);
 
       vertex
         .applyAxisAngle(direction, (Math.PI * x) / 2)
@@ -140,15 +144,15 @@ class Project {
   }
 
   update() {
-    // gsap.to(this.mesh.position, {
-    //   duration: "1",
-    //   ease: "power2.inOut",
-    //   yoyoEase: "power2.inOut",
-    //   repeat: -1,
-    //   x: "+=random(-0.2,0.2)",
-    //   y: "+=random(-0.2,0.2)",
-    //   z: "+=random(-0.2,0.2)"
-    // });
+    gsap.to(this.title.position, {
+      duration: "1",
+      ease: "power2.inOut",
+      yoyoEase: "power2.inOut",
+      repeat: -1,
+      x: "+=random(-0.2,0.2)",
+      y: "+=random(-0.2,0.2)",
+      z: "+=random(-0.2,0.2)"
+    });
   }
 
   morph(state, value) {

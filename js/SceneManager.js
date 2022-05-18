@@ -45,15 +45,15 @@ class SceneManager {
 
     this.initGUI();
 
-    // this.camAnim = gsap.to(this.camera.position, {
-    //   duration: "1",
-    //   ease: "power2.inOut",
-    //   yoyoEase: "power2.inOut",
-    //   repeat: -1,
-    //   x: "+=random(-0.1,0.1)",
-    //   y: "+=random(-0.1,0.1)",
-    //   z: "+=random(-0.1,0.1)"
-    // });
+    this.camAnim = gsap.to(this.camera.position, {
+      duration: "1",
+      ease: "power2.inOut",
+      yoyoEase: "power2.inOut",
+      repeat: -1,
+      x: "+=random(-0.05,0.05)",
+      y: "+=random(-0.05,0.05)",
+      z: "+=random(-0.05,0.05)"
+    });
   }
 
   update() {
@@ -198,13 +198,14 @@ class SceneManager {
     const nextProjectInViewPathPos = this.nextProjectInView.pathPos;
 
     var p1 = Path.getPointAt(nextProjectInViewPathPos - 0.005);
+    var p2 = Path.getPointAt(nextProjectInViewPathPos);
 
     let bend = 0;
     let bendSpeed = 0.1;
 
     gsap.to(this.camera.position, {
       duration: 2,
-      ease: "elastic.inOut(1, 1)",
+      ease: "elastic.inOut(1.2, 1)",
       x: p1.x,
       y: p1.y,
       z: p1.z,
@@ -214,8 +215,6 @@ class SceneManager {
         }
       },
       onUpdate: () => {
-        var p2 = Path.getPointAt(nextProjectInViewPathPos);
-
         if (!isForward) {
           if (projectCounter + 1 < this.projectsContainer.projects.length) {
             p2 = Path.getPointAt(
@@ -240,7 +239,6 @@ class SceneManager {
         this.camera.lookAt(p2);
       },
       onComplete: () => {
-        var p2 = Path.getPointAt(nextProjectInViewPathPos);
         this.camera.lookAt(p2);
 
         prevComplete = true;
@@ -248,15 +246,15 @@ class SceneManager {
 
         this.projectsContainer.resetMorph(0);
 
-        // this.camAnim = gsap.to(this.camera.position, {
-        //   duration: "1",
-        //   ease: "power2.inOut",
-        //   yoyoEase: "power2.inOut",
-        //   repeat: -1,
-        //   x: "+=random(-0.1,0.1)",
-        //   y: "+=random(-0.1,0.1)",
-        //   z: "+=random(-0.1,0.1)"
-        // });
+        this.camAnim = gsap.to(this.camera.position, {
+          duration: "1",
+          ease: "power2.inOut",
+          yoyoEase: "power2.inOut",
+          repeat: -1,
+          x: "+=random(-0.05,0.05)",
+          y: "+=random(-0.05,0.05)",
+          z: "+=random(-0.05,0.05)"
+        });
 
         // while (bend > 0) {
         //   this.regenerateGeometry(bend);
