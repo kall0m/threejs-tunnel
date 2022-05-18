@@ -53,7 +53,7 @@ class ProjectsContainer {
   }
 
   setProjectsContainer(scene, camera) {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 3; i++) {
       const pathPos = ((i / 20) % 1) + 0.01;
 
       const project = new Project(
@@ -76,6 +76,18 @@ class ProjectsContainer {
     // for (let i = 0; i < this.projects.length; i++) {
     //   this.projects[i].update();
     // }
+  }
+
+  morph(state, value) {
+    for (let i = 0; i < this.projects.length; i++) {
+      this.projects[i].morph(state, value);
+    }
+  }
+
+  resetMorph(state) {
+    for (let i = 0; i < this.projects.length; i++) {
+      this.projects[i].resetMorph(state);
+    }
   }
 }
 

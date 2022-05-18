@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import Stats from "three/examples/jsm/libs/stats.module.js";
+import { GUI } from "dat-gui";
 
 import { gsap } from "gsap";
 
@@ -25,9 +26,6 @@ let cameraPathPos = 0;
 let prevComplete = true;
 let isForward = false;
 
-let bentBox = new THREE.BoxBufferGeometry(3, 2, 1, 10, 10, 10);
-let bentMesh;
-
 class SceneManager {
   constructor(canvas) {
     this.scene = this.buildScene();
@@ -39,23 +37,23 @@ class SceneManager {
     this.sceneSubjects = this.createSceneSubjects();
 
     this.nextProjectInView = this.projectsContainer.projects[0];
-    this.nextProjectInView.animate();
+    this.nextProjectInView.update();
 
     this.camAnim = null;
 
     this.positionCamera();
 
-    this.camAnim = gsap.to(this.camera.position, {
-      duration: "1",
-      ease: "power2.inOut",
-      yoyoEase: "power2.inOut",
-      repeat: -1,
-      x: "+=random(-0.1,0.1)",
-      y: "+=random(-0.1,0.1)",
-      z: "+=random(-0.1,0.1)"
-    });
+    this.initGUI();
 
-    //document.getElementById("title").innerHTML = this.selectedProject.title;
+    // this.camAnim = gsap.to(this.camera.position, {
+    //   duration: "1",
+    //   ease: "power2.inOut",
+    //   yoyoEase: "power2.inOut",
+    //   repeat: -1,
+    //   x: "+=random(-0.1,0.1)",
+    //   y: "+=random(-0.1,0.1)",
+    //   z: "+=random(-0.1,0.1)"
+    // });
   }
 
   update() {
@@ -129,21 +127,6 @@ class SceneManager {
 
     var p2 = Path.getPointAt(cameraPathPos + 0.01);
     this.camera.lookAt(p2);
-
-    const material = new THREE.MeshLambertMaterial({
-      color: 0x00ff00
-    });
-
-    const light = new THREE.AmbientLight(0x404040); // soft white light
-    light.position.set(p1.x, p1.y, p1.z + 50);
-    this.scene.add(light);
-
-    bentMesh = new THREE.Mesh(bentBox, material);
-
-    this.scene.add(bentMesh);
-
-    bentMesh.position.set(p1.x + 12, p1.y, p1.z + 120);
-    bentMesh.rotation.set(5, 0, 0);
   }
 
   onWindowResize() {
@@ -160,6 +143,7 @@ class SceneManager {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   }
 
+  // for mouse scroll
   onWindowWheel(event) {
     if (prevComplete) {
       prevComplete = false;
@@ -180,6 +164,7 @@ class SceneManager {
     }
   }
 
+  // for touch screen
   handleGesture(touchstartX, touchstartY, touchendX, touchendY) {
     if (prevComplete) {
       prevComplete = false;
@@ -237,15 +222,19 @@ class SceneManager {
               this.projectsContainer.projects[projectCounter + 1].pathPos
             );
 
-            bend -= bendSpeed;
-            this.regenerateGeometry(
-              this.projectsContainer.projects[projectCounter + 1].mesh,
-              bend
-            );
+            // bend -= bendSpeed;
+            // this.regenerateGeometry(
+            //   this.projectsContainer.projects[projectCounter + 1].mesh,
+            //   bend
+            // );
+
+            this.projectsContainer.morph(1, -0.002);
           }
         } else {
-          bend += bendSpeed;
-          this.regenerateGeometry(this.nextProjectInView.mesh, bend);
+          // bend += bendSpeed;
+          // this.regenerateGeometry(this.nextProjectInView.mesh, bend);
+
+          this.projectsContainer.morph(1, 0.002);
         }
 
         this.camera.lookAt(p2);
@@ -255,7 +244,9 @@ class SceneManager {
         this.camera.lookAt(p2);
 
         prevComplete = true;
-        this.nextProjectInView.animate();
+        this.nextProjectInView.update();
+
+        this.projectsContainer.resetMorph(1);
 
         // this.camAnim = gsap.to(this.camera.position, {
         //   duration: "1",
@@ -273,18 +264,18 @@ class SceneManager {
         //   console.log(bend);
         // }
 
-        bend = 0;
+        // bend = 0;
 
-        if (!isForward) {
-          if (projectCounter + 1 < this.projectsContainer.projects.length) {
-            this.regenerateGeometry(
-              this.projectsContainer.projects[projectCounter + 1].mesh,
-              bend
-            );
-          }
-        } else {
-          this.regenerateGeometry(this.nextProjectInView.mesh, bend);
-        }
+        // if (!isForward) {
+        //   if (projectCounter + 1 < this.projectsContainer.projects.length) {
+        //     this.regenerateGeometry(
+        //       this.projectsContainer.projects[projectCounter + 1].mesh,
+        //       bend
+        //     );
+        //   }
+        // } else {
+        //   this.regenerateGeometry(this.nextProjectInView.mesh, bend);
+        // }
       }
     });
   }
@@ -298,6 +289,55 @@ class SceneManager {
 
     mesh.geometry.dispose();
     mesh.geometry = newGeometry;
+  }
+
+  initGUI() {
+    // Set up dat.GUI to control targets
+    const params = {
+      Spherify: 0,
+      Twist: 0,
+      Normal: 0,
+      Bend1: 0,
+      Bend2: 0
+    };
+
+    const gui = new GUI({ title: "Morph Targets" });
+
+    let mesh = this.nextProjectInView.mesh;
+
+    gui
+      .add(params, "Spherify", 0, 1)
+      .step(0.01)
+      .onChange(function (value) {
+        mesh.morphTargetInfluences[0] = value;
+      });
+    gui
+      .add(params, "Twist", 0, 1)
+      .step(0.01)
+      .onChange(function (value) {
+        mesh.morphTargetInfluences[1] = value;
+      });
+
+    gui
+      .add(params, "Normal", 0, 1)
+      .step(0.01)
+      .onChange(function (value) {
+        mesh.morphTargetInfluences[2] = value;
+      });
+
+    gui
+      .add(params, "Bend1", 0, 1)
+      .step(0.01)
+      .onChange(function (value) {
+        mesh.morphTargetInfluences[3] = value;
+      });
+
+    gui
+      .add(params, "Bend2", 0, 1)
+      .step(0.01)
+      .onChange(function (value) {
+        mesh.morphTargetInfluences[4] = value;
+      });
   }
 }
 
