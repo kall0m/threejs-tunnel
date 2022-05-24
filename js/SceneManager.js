@@ -6,8 +6,9 @@ import { GUI } from "dat-gui";
 
 import { gsap } from "gsap";
 
-import Tunnel from "./world/sceneSubjects/Tunnel.js";
 import Path from "./world/Path.js";
+
+import Tunnel from "./world/sceneSubjects/Tunnel.js";
 import ProjectsContainer from "./world/sceneSubjects/ProjectsContainer.js";
 
 import Bender from "./bender.js";
@@ -45,15 +46,15 @@ class SceneManager {
 
     this.initGUI();
 
-    this.camAnim = gsap.to(this.camera.position, {
-      duration: "1",
-      ease: "power2.inOut",
-      yoyoEase: "power2.inOut",
-      repeat: -1,
-      x: "+=random(-0.05,0.05)",
-      y: "+=random(-0.05,0.05)",
-      z: "+=random(-0.05,0.05)"
-    });
+    // this.camAnim = gsap.to(this.camera.position, {
+    //   duration: "1",
+    //   ease: "power2.inOut",
+    //   yoyoEase: "power2.inOut",
+    //   repeat: -1,
+    //   x: "+=random(-0.05,0.05)",
+    //   y: "+=random(-0.05,0.05)",
+    //   z: "+=random(-0.05,0.05)"
+    // });
   }
 
   update() {
@@ -88,7 +89,7 @@ class SceneManager {
 
   buildCamera() {
     // Base camera
-    const fieldOfView = 45;
+    const fieldOfView = 120;
     const aspectRatio = SIZES.width / SIZES.height;
     const nearPlane = 0.1;
     const farPlane = 300;
@@ -120,7 +121,7 @@ class SceneManager {
   }
 
   positionCamera() {
-    cameraPathPos = this.projectsContainer.projects[0].pathPos - 0.005;
+    cameraPathPos = this.projectsContainer.projects[0].pathPos - 0.0015;
 
     var p1 = Path.getPointAt(cameraPathPos);
     this.camera.position.set(p1.x, p1.y, p1.z);
@@ -197,15 +198,12 @@ class SceneManager {
     this.nextProjectInView = this.projectsContainer.projects[projectCounter];
     const nextProjectInViewPathPos = this.nextProjectInView.pathPos;
 
-    var p1 = Path.getPointAt(nextProjectInViewPathPos - 0.005);
+    var p1 = Path.getPointAt(nextProjectInViewPathPos - 0.0015);
     var p2 = Path.getPointAt(nextProjectInViewPathPos);
-
-    let bend = 0;
-    let bendSpeed = 0.1;
 
     gsap.to(this.camera.position, {
       duration: 2,
-      ease: "elastic.inOut(1.2, 1)",
+      ease: "elastic.inOut(1, 1)",
       x: p1.x,
       y: p1.y,
       z: p1.z,
@@ -221,72 +219,33 @@ class SceneManager {
               this.projectsContainer.projects[projectCounter + 1].pathPos
             );
 
-            // bend -= bendSpeed;
-            // this.regenerateGeometry(
-            //   this.projectsContainer.projects[projectCounter + 1].mesh,
-            //   bend
-            // );
-
-            this.projectsContainer.morph(0, -0.001);
+            this.projectsContainer.morph(0, -0.01);
           }
         } else {
-          // bend += bendSpeed;
-          // this.regenerateGeometry(this.nextProjectInView.mesh, bend);
-
-          this.projectsContainer.morph(0, 0.001);
+          this.projectsContainer.morph(0, 0.01);
         }
 
         this.camera.lookAt(p2);
       },
       onComplete: () => {
-        this.camera.lookAt(p2);
+        //this.camera.lookAt(p2);
 
         prevComplete = true;
         this.nextProjectInView.update();
 
         this.projectsContainer.resetMorph(0);
 
-        this.camAnim = gsap.to(this.camera.position, {
-          duration: "1",
-          ease: "power2.inOut",
-          yoyoEase: "power2.inOut",
-          repeat: -1,
-          x: "+=random(-0.05,0.05)",
-          y: "+=random(-0.05,0.05)",
-          z: "+=random(-0.05,0.05)"
-        });
-
-        // while (bend > 0) {
-        //   this.regenerateGeometry(bend);
-        //   bend -= bendSpeed;
-        //   console.log(bend);
-        // }
-
-        // bend = 0;
-
-        // if (!isForward) {
-        //   if (projectCounter + 1 < this.projectsContainer.projects.length) {
-        //     this.regenerateGeometry(
-        //       this.projectsContainer.projects[projectCounter + 1].mesh,
-        //       bend
-        //     );
-        //   }
-        // } else {
-        //   this.regenerateGeometry(this.nextProjectInView.mesh, bend);
-        // }
+        // this.camAnim = gsap.to(this.camera.position, {
+        //   duration: "1",
+        //   ease: "power2.inOut",
+        //   yoyoEase: "power2.inOut",
+        //   repeat: -1,
+        //   x: "+=random(-0.05,0.05)",
+        //   y: "+=random(-0.05,0.05)",
+        //   z: "+=random(-0.05,0.05)"
+        // });
       }
     });
-  }
-
-  regenerateGeometry(mesh, angle) {
-    let newGeometry = new THREE.BoxBufferGeometry(4, 2.25, 1);
-
-    newGeometry.center();
-
-    bender.bend(newGeometry, "x", angle);
-
-    mesh.geometry.dispose();
-    mesh.geometry = newGeometry;
   }
 
   initGUI() {
@@ -305,37 +264,17 @@ class SceneManager {
     let mesh = this.nextProjectInView.mesh;
 
     gui
-      .add(params, "Twist", 0, 1)
-      .step(0.01)
-      .onChange(function (value) {
-        mesh.morphTargetInfluences[0] = value;
-      });
-    gui
-      .add(params, "Spherify", 0, 1)
-      .step(0.01)
-      .onChange(function (value) {
-        mesh.morphTargetInfluences[1] = value;
-      });
-
-    gui
-      .add(params, "Normal", 0, 1)
-      .step(0.01)
-      .onChange(function (value) {
-        mesh.morphTargetInfluences[2] = value;
-      });
-
-    gui
       .add(params, "Bend1", 0, 1)
       .step(0.01)
       .onChange(function (value) {
-        mesh.morphTargetInfluences[3] = value;
+        mesh.morphTargetInfluences[0] = value;
       });
 
     gui
       .add(params, "Bend2", 0, 1)
       .step(0.01)
       .onChange(function (value) {
-        mesh.morphTargetInfluences[4] = value;
+        mesh.morphTargetInfluences[1] = value;
       });
   }
 }

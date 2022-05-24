@@ -24,14 +24,47 @@ body {
   position: fixed;
   top: 0;
   left: 0;
+  font-family: "Vectora LT Std", sans-serif;
 }
 
 #title {
-  font-family: "Vectora LT Std", sans-serif;
   font-size: 60px;
   color: white;
   position: absolute;
   bottom: 25%;
   left: 25%;
   width: 600px;
+}
+
+#app::before {
+  content: "";
+  bottom: 2.5em;
+  height: 1.5em;
+  width: 1.5px;
+  background: white;
+}
+
+#app::after {
+  content: "Scroll";
+  position: fixed;
+  bottom: 0;
+  width: 6em;
+  text-align: center;
+  margin: 0 0 1.5em -3em;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-indent: 2px;
+  color: white;
+}
+
+#app::before,
+#app::after {
+  position: fixed;
+  left: 50%;
+}
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
 }
