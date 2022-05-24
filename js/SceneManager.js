@@ -102,6 +102,8 @@ class SceneManager {
     );
 
     let controls = new OrbitControls(camera, this.renderer.domElement);
+    controls.target.set(0, 12, 0);
+    controls.update();
     controls.enabled = false;
 
     return camera;
@@ -121,7 +123,7 @@ class SceneManager {
   }
 
   positionCamera() {
-    cameraPathPos = this.projectsContainer.projects[0].pathPos - 0.0015;
+    cameraPathPos = this.projectsContainer.projects[0].pathPos - 0.004;
 
     var p1 = Path.getPointAt(cameraPathPos);
     this.camera.position.set(p1.x, p1.y, p1.z);
@@ -198,7 +200,7 @@ class SceneManager {
     this.nextProjectInView = this.projectsContainer.projects[projectCounter];
     const nextProjectInViewPathPos = this.nextProjectInView.pathPos;
 
-    var p1 = Path.getPointAt(nextProjectInViewPathPos - 0.0015);
+    var p1 = Path.getPointAt(nextProjectInViewPathPos - 0.004);
     var p2 = Path.getPointAt(nextProjectInViewPathPos);
 
     gsap.to(this.camera.position, {
@@ -231,7 +233,7 @@ class SceneManager {
         //this.camera.lookAt(p2);
 
         prevComplete = true;
-        this.nextProjectInView.update();
+        //this.nextProjectInView.update();
 
         this.projectsContainer.resetMorph(0);
 

@@ -9,12 +9,14 @@ import Bender from "../../bender.js";
 const bender = new Bender();
 
 class Project {
-  constructor(title, pathPos, color, img, camera) {
+  constructor(title, pathPos, color, img, camera, index) {
     this.title = title;
     this.pathPos = pathPos;
     this.color = color;
     this.img = img;
     this.isSelected = false;
+    this.index = index;
+    this.camera = camera;
 
     this.mesh = new THREE.Object3D();
 
@@ -55,6 +57,8 @@ class Project {
     mesh.position.set(pos.x, pos.y, pos.z);
     mesh.lookAt(camera.position);
 
+    //mesh.rotation.y = -((Math.PI * 2) / 10) * this.index;
+
     title.position.set(pos.x, pos.y - 2.4, pos.z - 1);
     title.lookAt(camera.position);
 
@@ -64,9 +68,9 @@ class Project {
 
   // https://threejs.org/examples/webgl_morphtargets.html
   createGeometry() {
-    const geometry = new THREE.BoxGeometry(4, 2.25, 0.1, 32, 32, 32);
-    const geometry1 = new THREE.BoxGeometry(4, 2.25, 0.1, 32, 32, 32);
-    const geometry2 = new THREE.BoxGeometry(4, 2.25, 0.1, 32, 32, 32);
+    const geometry = new THREE.BoxBufferGeometry(4, 2.25, 0.1, 32, 32, 32);
+    const geometry1 = new THREE.BoxBufferGeometry(4, 2.25, 0.1, 32, 32, 32);
+    const geometry2 = new THREE.BoxBufferGeometry(4, 2.25, 0.1, 32, 32, 32);
 
     bender.bend(geometry1, "y", -0.2);
     bender.bend(geometry2, "y", 0.2);
@@ -115,15 +119,17 @@ class Project {
   }
 
   update() {
-    gsap.to(this.title.position, {
-      duration: "1",
-      ease: "power2.inOut",
-      yoyoEase: "power2.inOut",
-      repeat: -1,
-      x: "+=random(-0.2,0.2)",
-      y: "+=random(-0.2,0.2)",
-      z: "+=random(-0.2,0.2)"
-    });
+    // gsap.to(this.title.position, {
+    //   duration: "1",
+    //   ease: "power2.inOut",
+    //   yoyoEase: "power2.inOut",
+    //   repeat: -1,
+    //   x: "+=random(-0.2,0.2)",
+    //   y: "+=random(-0.2,0.2)",
+    //   z: "+=random(-0.2,0.2)"
+    // });
+
+    this.mesh.lookAt(this.camera.position);
   }
 
   morph(state, value) {

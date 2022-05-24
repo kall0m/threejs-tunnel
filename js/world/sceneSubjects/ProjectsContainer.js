@@ -61,7 +61,8 @@ class ProjectsContainer {
         pathPos,
         colors[i],
         images[i],
-        camera
+        camera,
+        i
       );
 
       this.projects.push(project);
@@ -73,9 +74,9 @@ class ProjectsContainer {
   }
 
   update() {
-    // for (let i = 0; i < this.projects.length; i++) {
-    //   this.projects[i].update();
-    // }
+    for (let i = 0; i < this.projects.length; i++) {
+      this.projects[i].update();
+    }
   }
 
   morph(state, value) {

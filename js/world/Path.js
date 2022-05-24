@@ -29,12 +29,22 @@ const points = [
   [0, 0, 2000]
 ];
 
+var radius = 30;
+var turns = 3;
+var objPerTurn = 10;
+
+var angleStep = (Math.PI * 2) / objPerTurn;
+var heightStep = 5;
+
 // Convert the array of points into vertices
-for (var i = 0; i < points.length; i++) {
-  var x = points[i][0];
-  var y = points[i][1];
-  //Math.round((Math.random() - 0.5) * 250);
-  var z = points[i][2];
+for (var i = 0; i < turns * objPerTurn; i++) {
+  // var x = points[i][0];
+  // var y = points[i][1];
+  // var z = points[i][2];
+
+  var x = Math.cos(angleStep * i) * radius;
+  var y = heightStep * i;
+  var z = Math.sin(angleStep * i) * radius;
 
   points[i] = new THREE.Vector3(x, y, z);
 }

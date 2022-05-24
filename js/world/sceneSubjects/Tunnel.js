@@ -13,7 +13,7 @@ class Tunnel {
   }
 
   setTunnel(scene, camera) {
-    const geometry1 = new THREE.RingGeometry(5, 5.02, 6);
+    const geometry = new THREE.RingGeometry(5, 5.02, 6);
 
     const material = new THREE.MeshBasicMaterial({
       color: "#ffffff"
@@ -21,7 +21,7 @@ class Tunnel {
     });
 
     for (let i = 0; i < 1000; i++) {
-      let mesh = new THREE.Mesh(geometry1, material);
+      let mesh = new THREE.Mesh(geometry, material);
 
       const pos = Path.getPointAt((i / 1000) % 1);
 
