@@ -3,67 +3,25 @@ import * as THREE from "three";
 import { gsap } from "gsap";
 import { Text } from "troika-three-text";
 
-import Path from "../Path.js";
-
 import Bender from "../../bender.js";
 const bender = new Bender();
 
 class Project {
-  constructor(title, pathPos, color, img, camera, index) {
+  constructor(title, pos, color, img, camera) {
     this.title = title;
-    this.pathPos = pathPos;
+    this.pos = pos;
     this.color = color;
     this.img = img;
-    this.isSelected = false;
-    this.index = index;
     this.camera = camera;
 
     this.mesh = new THREE.Object3D();
 
-    this.setProject(camera);
+    this.setProject();
   }
 
-  setProject(camera) {
-    const loader = new THREE.TextureLoader();
-    const texture = loader.load(this.img);
-
-    const geometry = this.createGeometry();
-
-    const mesh = new THREE.Mesh(
-      geometry,
-      new THREE.MeshBasicMaterial({
-        map: texture
-      })
-    );
-
-    const title = new Text();
-
-    // Set properties to configure:
-    title.text = this.title.toUpperCase();
-    title.font = "../../../fonts/VectoraLTStd-Bold.woff";
-    title.fontSize = 0.4;
-    title.color = "#ffffff";
-    title.maxWidth = 3;
-    title.anchorX = "left";
-    title.anchorY = "top";
-    title.letterSpacing = 0;
-    title.lineHeight = 1;
-
-    // Update the rendering:
-    title.sync();
-
-    const pos = Path.getPointAt(this.pathPos);
-
-    mesh.position.set(pos.x, pos.y, pos.z);
-    mesh.lookAt(camera.position);
-
-    //mesh.rotation.y = -((Math.PI * 2) / 10) * this.index;
-
-    title.position.set(pos.x, pos.y - 2.4, pos.z - 1);
-    title.lookAt(camera.position);
-
-    this.mesh = mesh;
-    this.title = title;
+  setProject() {
+    this.setMesh();
+    this.setTitle();
   }
 
   // https://threejs.org/examples/webgl_morphtargets.html
@@ -118,6 +76,46 @@ class Project {
     return geometry;
   }
 
+  setMesh() {
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load(this.img);
+
+    const geometry = this.createGeometry();
+
+    const mesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({
+        map: texture
+      })
+    );
+
+    mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
+    mesh.lookAt(this.camera.position);
+
+    this.mesh = mesh;
+  }
+
+  setTitle() {
+    const title = new Text();
+
+    title.text = this.title.toUpperCase();
+    title.font = "../../../fonts/VectoraLTStd-Bold.woff";
+    title.fontSize = 0.4;
+    title.color = "#ffffff";
+    title.maxWidth = 3;
+    title.anchorX = "left";
+    title.anchorY = "top";
+    title.letterSpacing = 0;
+    title.lineHeight = 1;
+
+    title.sync();
+
+    title.position.set(this.pos.x, this.pos.y - 2.4, this.pos.z - 1);
+    title.lookAt(this.camera.position);
+
+    this.title = title;
+  }
+
   update() {
     // gsap.to(this.title.position, {
     //   duration: "1",
@@ -130,6 +128,7 @@ class Project {
     // });
 
     this.mesh.lookAt(this.camera.position);
+    this.title.lookAt(this.camera.position);
   }
 
   morph(state, value) {

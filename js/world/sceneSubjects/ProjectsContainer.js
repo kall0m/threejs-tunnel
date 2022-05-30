@@ -42,9 +42,10 @@ const titles = [
 ];
 
 class ProjectsContainer {
-  constructor(scene, camera) {
+  constructor(scene, camera, path) {
     this.camera = camera;
     this.projects = [];
+    this.path = path;
 
     this.container = new THREE.Object3D();
     this.container.matrixAutoUpdate = false;
@@ -54,15 +55,14 @@ class ProjectsContainer {
 
   setProjectsContainer(scene, camera) {
     for (let i = 0; i < 10; i++) {
-      const pathPos = ((i / 40) % 1) + 0.01;
+      const pathPos = ((i / 20) % 1) + 0.01;
 
       const project = new Project(
         titles[i],
-        pathPos,
+        this.path.getPointAt(pathPos),
         colors[i],
         images[i],
-        camera,
-        i
+        camera
       );
 
       this.projects.push(project);

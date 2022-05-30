@@ -2,17 +2,11 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import Stats from "three/examples/jsm/libs/stats.module.js";
-import { GUI } from "dat-gui";
 
 import { gsap } from "gsap";
 
-import Path from "./world/Path.js";
-
-import Tunnel from "./world/sceneSubjects/Tunnel.js";
+import * as TUNNEL from "./world/sceneSubjects/Tunnel.js";
 import ProjectsContainer from "./world/sceneSubjects/ProjectsContainer.js";
-
-import Bender from "./bender.js";
-const bender = new Bender();
 
 const SIZES = {
   width: window.innerWidth,
@@ -22,29 +16,28 @@ const SIZES = {
 const stats = Stats();
 
 let projectCounter = 0;
-let cameraPathPos = 0;
 
 let prevComplete = true;
 let isForward = false;
 
+let position = {
+  percent: 0.005,
+  counter: 0
+};
+
 class SceneManager {
   constructor(canvas) {
     this.scene = this.buildScene();
-    this.renderer = this.buildRender(canvas);
+    this.renderer = this.buildRenderer(canvas);
     this.camera = this.buildCamera();
 
     this.projectsContainer = [];
-    this.tunnelRings = [];
+    this.tunnel = new THREE.Object3D();
     this.sceneSubjects = this.createSceneSubjects();
-
-    this.nextProjectInView = this.projectsContainer.projects[0];
-    this.nextProjectInView.update();
 
     this.camAnim = null;
 
     this.positionCamera();
-
-    this.initGUI();
 
     // this.camAnim = gsap.to(this.camera.position, {
     //   duration: "1",
@@ -57,22 +50,12 @@ class SceneManager {
     // });
   }
 
-  update() {
-    for (let i = 0; i < this.sceneSubjects.length; i++) {
-      this.sceneSubjects[i].update();
-    }
-
-    this.renderer.render(this.scene, this.camera);
-
-    stats.update();
-  }
-
   buildScene() {
     const scene = new THREE.Scene();
     return scene;
   }
 
-  buildRender(canvas) {
+  buildRenderer(canvas) {
     const renderer = new THREE.WebGLRenderer({
       canvas: canvas,
       antialias: true,
@@ -110,26 +93,26 @@ class SceneManager {
   }
 
   createSceneSubjects() {
-    let tunnel = new Tunnel(this.scene, this.camera);
-    this.tunnelRings = tunnel.container.children;
+    this.tunnel = new TUNNEL.Tunnel(this.scene);
 
-    let projectsContainer = new ProjectsContainer(this.scene, this.camera);
-    this.projectsContainer = projectsContainer;
+    this.projectsContainer = new ProjectsContainer(
+      this.scene,
+      this.camera,
+      this.tunnel.path
+    );
 
     // add new SceneSubjects to the scene
-    const sceneSubjects = [tunnel, projectsContainer];
+    const sceneSubjects = [this.tunnel, this.projectsContainer];
 
     return sceneSubjects;
   }
 
   positionCamera() {
-    cameraPathPos = this.projectsContainer.projects[0].pathPos - 0.004;
-
-    var p1 = Path.getPointAt(cameraPathPos);
-    this.camera.position.set(p1.x, p1.y, p1.z);
-
-    var p2 = Path.getPointAt(cameraPathPos + 0.01);
-    this.camera.lookAt(p2);
+    // cameraPathPos = this.projectsContainer.projects[0].pathPos - 0.004;
+    // var p1 = Path.getPointAt(cameraPathPos);
+    // this.camera.position.set(p1.x, p1.y, p1.z);
+    // var p2 = Path.getPointAt(cameraPathPos + 0.01);
+    // this.camera.lookAt(p2);
   }
 
   onWindowResize() {
@@ -195,46 +178,29 @@ class SceneManager {
   }
 
   goToNextProject() {
-    projectCounter %= this.projectsContainer.projects.length;
+    prevComplete = true;
 
-    this.nextProjectInView = this.projectsContainer.projects[projectCounter];
-    const nextProjectInViewPathPos = this.nextProjectInView.pathPos;
-
-    var p1 = Path.getPointAt(nextProjectInViewPathPos - 0.004);
-    var p2 = Path.getPointAt(nextProjectInViewPathPos);
-
-    gsap.to(this.camera.position, {
-      duration: 2,
-      ease: "elastic.inOut(1, 1)",
-      x: p1.x,
-      y: p1.y,
-      z: p1.z,
-      onStart: () => {
-        if (this.camAnim) {
-          this.camAnim.kill();
-        }
-      },
+    gsap.to(position, {
+      percent: isForward ? "+=0.05" : "-=0.05",
+      counter: isForward ? "+=30" : "-=30",
+      duration: 1,
+      //ease: "elastic.inOut(1, 1)",
+      //onStart: () => {
+      //     if (this.camAnim) {
+      //       this.camAnim.kill();
+      //     }
+      //   },
       onUpdate: () => {
         if (!isForward) {
           if (projectCounter + 1 < this.projectsContainer.projects.length) {
-            p2 = Path.getPointAt(
-              this.projectsContainer.projects[projectCounter + 1].pathPos
-            );
-
             this.projectsContainer.morph(0, -0.01);
           }
         } else {
           this.projectsContainer.morph(0, 0.01);
         }
-
-        this.camera.lookAt(p2);
       },
       onComplete: () => {
-        //this.camera.lookAt(p2);
-
         prevComplete = true;
-        //this.nextProjectInView.update();
-
         this.projectsContainer.resetMorph(0);
 
         // this.camAnim = gsap.to(this.camera.position, {
@@ -250,34 +216,38 @@ class SceneManager {
     });
   }
 
-  initGUI() {
-    // Set up dat.GUI to control targets
-    const params = {
-      Twist: 0,
-      Spherify: 0,
+  updateCameraPercentage(percentage) {
+    let p1 = this.tunnel.path.getPointAt(percentage % 1);
+    let p2 = this.tunnel.path.getPointAt((percentage + 0.03) % 3);
+    this.camera.position.set(p1.x, p1.y, p1.z);
+    this.camera.lookAt(p2);
+  }
 
-      Normal: 0,
-      Bend1: 0,
-      Bend2: 0
-    };
+  updateCameraCounter(counter) {
+    let x = Math.cos(TUNNEL.ANGLE_STEP * counter) * TUNNEL.RADIUS;
+    let y = TUNNEL.HEIGHT_STEP * counter;
+    let z = Math.sin(TUNNEL.ANGLE_STEP * counter) * TUNNEL.RADIUS;
 
-    const gui = new GUI({ title: "Morph Targets" });
+    this.camera.position.set(x, y, z);
 
-    let mesh = this.nextProjectInView.mesh;
+    x = Math.cos(TUNNEL.ANGLE_STEP * (counter + 5)) * TUNNEL.RADIUS;
+    y = TUNNEL.HEIGHT_STEP * (counter + 5);
+    z = Math.sin(TUNNEL.ANGLE_STEP * (counter + 5)) * TUNNEL.RADIUS;
 
-    gui
-      .add(params, "Bend1", 0, 1)
-      .step(0.01)
-      .onChange(function (value) {
-        mesh.morphTargetInfluences[0] = value;
-      });
+    this.camera.lookAt(new THREE.Vector3(x, y, z));
+  }
 
-    gui
-      .add(params, "Bend2", 0, 1)
-      .step(0.01)
-      .onChange(function (value) {
-        mesh.morphTargetInfluences[1] = value;
-      });
+  update() {
+    for (let i = 0; i < this.sceneSubjects.length; i++) {
+      this.sceneSubjects[i].update();
+    }
+
+    //this.updateCameraPercentage(position.percent);
+    this.updateCameraCounter(position.counter);
+
+    this.renderer.render(this.scene, this.camera);
+
+    stats.update();
   }
 }
 

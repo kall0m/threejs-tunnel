@@ -1,45 +1,52 @@
 import * as THREE from "three";
 
-import Path from "../Path.js";
+const RADIUS = 20;
+const TURNS = 2;
+const OBJ_PER_TURN = 200;
+
+const ANGLE_STEP = (Math.PI * 2) / OBJ_PER_TURN;
+const HEIGHT_STEP = 0.1;
 
 class Tunnel {
-  constructor(scene, camera) {
-    this.camera = camera;
+  constructor(scene) {
+    this.path = new THREE.Object3D();
 
     this.container = new THREE.Object3D();
     this.container.matrixAutoUpdate = false;
 
-    this.setTunnel(scene, camera);
+    this.setTunnel(scene);
   }
 
-  setTunnel(scene, camera) {
-    const geometry = new THREE.RingGeometry(5, 5.02, 6);
+  setTunnel(scene) {
+    let points = [];
+
+    const geometry = new THREE.TorusGeometry(5, 0.005, 30, 6);
 
     const material = new THREE.MeshBasicMaterial({
       color: "#ffffff"
-      //side: THREE.BackSide
     });
 
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < TURNS * OBJ_PER_TURN; i++) {
       let mesh = new THREE.Mesh(geometry, material);
 
-      const pos = Path.getPointAt((i / 1000) % 1);
+      let x = Math.cos(ANGLE_STEP * i) * RADIUS;
+      let y = HEIGHT_STEP * i;
+      let z = Math.sin(ANGLE_STEP * i) * RADIUS;
 
-      mesh.position.set(pos.x, pos.y, pos.z);
-      mesh.lookAt(camera.position);
+      mesh.position.set(x, y, z);
+      mesh.rotation.y = -ANGLE_STEP * i;
+
+      points[i] = new THREE.Vector3(x, y, z);
 
       this.container.add(mesh);
     }
 
+    this.path = new THREE.CatmullRomCurve3(points);
+
     scene.add(this.container);
   }
 
-  update() {
-    for (let i = 0; i < this.container.children.length; i++) {
-      const ring = this.container.children[i];
-      ring.lookAt(this.camera.position);
-    }
-  }
+  update() {}
 }
 
-export default Tunnel;
+export { RADIUS, TURNS, OBJ_PER_TURN, ANGLE_STEP, HEIGHT_STEP, Tunnel };
