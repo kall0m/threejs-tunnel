@@ -23,10 +23,11 @@ export const PROJECT_TITLES = [
   "Accenture One Space",
   "Random VR Project"
 ];
-export const PROJECT_DISTANCE_BETWEEN = 20;
+export const PROJECT_DISTANCE_BETWEEN = 4;
 export const PROJECT_OFFSET = 0;
-export const PROJECT_BEND_POWER = 0.5;
-export const PROJECT_BEND_STEP = 0.008;
+export const PROJECT_BEND_POWER = 0.3;
+export const PROJECT_BEND_STATE_FORWARD = 0;
+export const PROJECT_BEND_STATE_BACKWARD = 1;
 
 // TUNNEL
 export const RADIUS = 80;

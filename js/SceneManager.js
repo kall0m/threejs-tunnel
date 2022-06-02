@@ -19,7 +19,8 @@ let isForward = false;
 
 let tunnelMoveProperties = {
   cameraStep: 0,
-  projectMorph: 0
+  projectMorph: 0,
+  projectMorphBackward: 0
 };
 
 class SceneManager {
@@ -36,8 +37,6 @@ class SceneManager {
     this.sceneSubjects = this.createSceneSubjects();
 
     this.camAnim = null;
-
-    this.updateCameraCoordinates(0);
 
     // this.camAnim = gsap.to(this.camera.position, {
     //   duration: "1",
@@ -153,51 +152,39 @@ class SceneManager {
   }
 
   goToNextProject() {
-    //prevComplete = true;
-
-    gsap.to(tunnelMoveProperties, {
-      cameraStep: isForward ? "+=1" : "-=1",
-      projectMorph: 1,
-      duration: 2,
-      ease: "elastic.inOut(1, 1)",
-      //onStart: () => {
-      //     if (this.camAnim) {
-      //       this.camAnim.kill();
-      //     }
-      //   },
-      onUpdate: () => {
-        if (isForward) {
-          this.projectsContainer.morph(1, Settings.PROJECT_BEND_STEP);
-        } else {
-          this.projectsContainer.morph(0, Settings.PROJECT_BEND_STEP);
+    gsap
+      .timeline()
+      .to(tunnelMoveProperties, {
+        cameraStep: isForward ? "+=0.5" : "-=0.5",
+        duration: 1,
+        ease: "power4.in"
+      })
+      .to(tunnelMoveProperties, {
+        cameraStep: isForward ? "+=0.5" : "-=0.5",
+        duration: 1,
+        ease: "elastic.out(1,0.6)",
+        onComplete: () => {
+          prevComplete = true;
         }
-      },
-      onComplete: () => {
-        prevComplete = true;
-
-        if (isForward) {
-          this.projectsContainer.resetMorph(1);
-        } else {
-          this.projectsContainer.resetMorph(0);
-        }
-
-        tunnelMoveProperties.projectMorph = 0;
-
-        if (tunnelMoveProperties.cameraStep % 1 === 0) {
-          this.tunnel.regenerate(isForward);
-        }
-
-        // this.camAnim = gsap.to(this.camera.position, {
-        //   duration: "1",
-        //   ease: "power2.inOut",
-        //   yoyoEase: "power2.inOut",
-        //   repeat: -1,
-        //   x: "+=random(-0.05,0.05)",
-        //   y: "+=random(-0.05,0.05)",
-        //   z: "+=random(-0.05,0.05)"
-        // });
-      }
-    });
+      })
+      .to(
+        tunnelMoveProperties,
+        {
+          projectMorph: 0.85,
+          duration: 1,
+          ease: "power4.in"
+        },
+        0
+      )
+      .to(
+        tunnelMoveProperties,
+        {
+          projectMorph: 0,
+          duration: 2,
+          ease: "elastic.out(1,0.3)"
+        },
+        1.2
+      );
   }
 
   updateCameraCoordinates(i) {
@@ -215,12 +202,26 @@ class SceneManager {
     this.camera.rotation.x = Settings.ANGLE_STEP * counter;
   }
 
+  updateProjectsBend(state, morph) {
+    this.projectsContainer.morph(state, morph);
+  }
+
   update() {
     for (let i = 0; i < this.sceneSubjects.length; i++) {
       this.sceneSubjects[i].update();
     }
 
     this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
+
+    isForward
+      ? this.updateProjectsBend(
+          Settings.PROJECT_BEND_STATE_FORWARD,
+          tunnelMoveProperties.projectMorph
+        )
+      : this.updateProjectsBend(
+          Settings.PROJECT_BEND_STATE_BACKWARD,
+          tunnelMoveProperties.projectMorph
+        );
 
     this.renderer.render(this.scene, this.camera);
 

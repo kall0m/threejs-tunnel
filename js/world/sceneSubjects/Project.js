@@ -123,11 +123,7 @@ class Project {
   }
 
   morph(state, value) {
-    this.mesh.morphTargetInfluences[state] += value;
-  }
-
-  resetMorph(state) {
-    this.mesh.morphTargetInfluences[state] = 0;
+    this.mesh.morphTargetInfluences[state] = value;
   }
 }
 

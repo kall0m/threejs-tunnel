@@ -52,12 +52,6 @@ class ProjectsContainer {
       this.projects[i].morph(state, value);
     }
   }
-
-  resetMorph(state) {
-    for (let i = 0; i < this.projects.length; i++) {
-      this.projects[i].resetMorph(state);
-    }
-  }
 }
 
 export default ProjectsContainer;
