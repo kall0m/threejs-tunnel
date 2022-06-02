@@ -1,15 +1,9 @@
 import * as THREE from "three";
-
-const RADIUS = 20;
-const TURNS = 2;
-const OBJ_PER_TURN = 200;
-
-const ANGLE_STEP = (Math.PI * 2) / OBJ_PER_TURN;
-const HEIGHT_STEP = 0.1;
+import * as Settings from "../../constants.js";
 
 class Tunnel {
   constructor(scene) {
-    this.path = new THREE.Object3D();
+    this.hexagons = [];
 
     this.container = new THREE.Object3D();
     this.container.matrixAutoUpdate = false;
@@ -18,35 +12,56 @@ class Tunnel {
   }
 
   setTunnel(scene) {
-    let points = [];
+    for (let i = 0; i < Settings.TURNS * Settings.OBJ_PER_TURN; i++) {
+      const mesh = this.createMesh(i);
 
-    const geometry = new THREE.TorusGeometry(5, 0.005, 30, 6);
+      this.hexagons.push(mesh);
+      this.container.add(mesh);
+    }
 
+    scene.add(this.container);
+  }
+
+  createMesh(counter) {
+    const geometry = new THREE.TorusGeometry(5, 0.02, 32, 6);
     const material = new THREE.MeshBasicMaterial({
       color: "#ffffff"
     });
 
-    for (let i = 0; i < TURNS * OBJ_PER_TURN; i++) {
-      let mesh = new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(geometry, material);
 
-      let x = Math.cos(ANGLE_STEP * i) * RADIUS;
-      let y = HEIGHT_STEP * i;
-      let z = Math.sin(ANGLE_STEP * i) * RADIUS;
+    const x = Settings.HEIGHT_STEP * counter;
+    const y = -Math.cos(Settings.ANGLE_STEP * counter) * Settings.RADIUS;
+    const z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
 
-      mesh.position.set(x, y, z);
-      mesh.rotation.y = -ANGLE_STEP * i;
+    mesh.position.set(x, y, z);
+    mesh.rotation.x = Settings.ANGLE_STEP * counter;
 
-      points[i] = new THREE.Vector3(x, y, z);
+    return mesh;
+  }
 
-      this.container.add(mesh);
-    }
-
-    this.path = new THREE.CatmullRomCurve3(points);
-
-    scene.add(this.container);
+  regenerate(isForward) {
+    // if (isForward) {
+    //   for (let i = 0; i < Settings.REGENERATION_NUMBER; i++) {
+    //     const x =
+    //       Math.cos(Settings.ANGLE_STEP * (this.hexagons.length + i)) *
+    //       Settings.RADIUS;
+    //     const y = Settings.HEIGHT_STEP * (this.hexagons.length + i);
+    //     const z =
+    //       Math.sin(Settings.ANGLE_STEP * (this.hexagons.length + i)) *
+    //       Settings.RADIUS;
+    //     // this.hexagons[i].position.set(x, y, z);
+    //     // this.hexagons[i].rotation.y =
+    //     //   -Settings.ANGLE_STEP * (this.hexagons.length + i);
+    //     this.hexagons[i].material.color = "#ff00ff";
+    //   }
+    //   const n = this.hexagons.splice(0, Settings.REGENERATION_NUMBER);
+    //   this.hexagons.concat(n);
+    // } else {
+    // }
   }
 
   update() {}
 }
 
-export { RADIUS, TURNS, OBJ_PER_TURN, ANGLE_STEP, HEIGHT_STEP, Tunnel };
+export default Tunnel;

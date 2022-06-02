@@ -1,11 +1,10 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-
 import Stats from "three/examples/jsm/libs/stats.module.js";
-
 import { gsap } from "gsap";
 
-import * as TUNNEL from "./world/sceneSubjects/Tunnel.js";
+import * as Settings from "./constants.js";
+import Tunnel from "./world/sceneSubjects/Tunnel.js";
 import ProjectsContainer from "./world/sceneSubjects/ProjectsContainer.js";
 
 const SIZES = {
@@ -15,14 +14,12 @@ const SIZES = {
 
 const stats = Stats();
 
-let projectCounter = 0;
-
 let prevComplete = true;
 let isForward = false;
 
-let position = {
-  percent: 0.005,
-  counter: 0
+let tunnelMoveProperties = {
+  cameraStep: 0,
+  projectMorph: 0
 };
 
 class SceneManager {
@@ -32,12 +29,15 @@ class SceneManager {
     this.camera = this.buildCamera();
 
     this.projectsContainer = [];
+
     this.tunnel = new THREE.Object3D();
+    this.tunnel.matrixAutoUpdate = false;
+
     this.sceneSubjects = this.createSceneSubjects();
 
     this.camAnim = null;
 
-    this.positionCamera();
+    this.updateCameraCoordinates(0);
 
     // this.camAnim = gsap.to(this.camera.position, {
     //   duration: "1",
@@ -72,10 +72,10 @@ class SceneManager {
 
   buildCamera() {
     // Base camera
-    const fieldOfView = 120;
+    const fieldOfView = Settings.CAMERA_FOV;
     const aspectRatio = SIZES.width / SIZES.height;
     const nearPlane = 0.1;
-    const farPlane = 300;
+    const farPlane = 1000;
 
     const camera = new THREE.PerspectiveCamera(
       fieldOfView,
@@ -84,8 +84,7 @@ class SceneManager {
       farPlane
     );
 
-    let controls = new OrbitControls(camera, this.renderer.domElement);
-    controls.target.set(0, 12, 0);
+    const controls = new OrbitControls(camera, this.renderer.domElement);
     controls.update();
     controls.enabled = false;
 
@@ -93,26 +92,14 @@ class SceneManager {
   }
 
   createSceneSubjects() {
-    this.tunnel = new TUNNEL.Tunnel(this.scene);
+    this.tunnel = new Tunnel(this.scene);
 
-    this.projectsContainer = new ProjectsContainer(
-      this.scene,
-      this.camera,
-      this.tunnel.path
-    );
+    this.projectsContainer = new ProjectsContainer(this.scene);
 
     // add new SceneSubjects to the scene
     const sceneSubjects = [this.tunnel, this.projectsContainer];
 
     return sceneSubjects;
-  }
-
-  positionCamera() {
-    // cameraPathPos = this.projectsContainer.projects[0].pathPos - 0.004;
-    // var p1 = Path.getPointAt(cameraPathPos);
-    // this.camera.position.set(p1.x, p1.y, p1.z);
-    // var p2 = Path.getPointAt(cameraPathPos + 0.01);
-    // this.camera.lookAt(p2);
   }
 
   onWindowResize() {
@@ -136,13 +123,8 @@ class SceneManager {
 
       // Check if scrolled up or down
       if (event.deltaY > 0) {
-        projectCounter++;
         isForward = true;
       } else {
-        projectCounter--;
-        if (projectCounter < 0) {
-          projectCounter = this.projectsContainer.projects.length - 1;
-        }
         isForward = false;
       }
 
@@ -160,48 +142,50 @@ class SceneManager {
 
       if (Math.abs(delx) < Math.abs(dely)) {
         if (dely > 0) {
-          projectCounter++;
           isForward = true;
         } else {
-          projectCounter--;
-          if (projectCounter < 0) {
-            projectCounter = this.projectsContainer.projects.length - 1;
-          }
           isForward = false;
         }
 
         this.goToNextProject();
-      } else {
-        prevComplete = true;
       }
     }
   }
 
   goToNextProject() {
-    prevComplete = true;
+    //prevComplete = true;
 
-    gsap.to(position, {
-      percent: isForward ? "+=0.05" : "-=0.05",
-      counter: isForward ? "+=30" : "-=30",
-      duration: 1,
-      //ease: "elastic.inOut(1, 1)",
+    gsap.to(tunnelMoveProperties, {
+      cameraStep: isForward ? "+=1" : "-=1",
+      projectMorph: 1,
+      duration: 2,
+      ease: "elastic.inOut(1, 1)",
       //onStart: () => {
       //     if (this.camAnim) {
       //       this.camAnim.kill();
       //     }
       //   },
       onUpdate: () => {
-        if (!isForward) {
-          if (projectCounter + 1 < this.projectsContainer.projects.length) {
-            this.projectsContainer.morph(0, -0.01);
-          }
+        if (isForward) {
+          this.projectsContainer.morph(1, Settings.PROJECT_BEND_STEP);
         } else {
-          this.projectsContainer.morph(0, 0.01);
+          this.projectsContainer.morph(0, Settings.PROJECT_BEND_STEP);
         }
       },
       onComplete: () => {
         prevComplete = true;
-        this.projectsContainer.resetMorph(0);
+
+        if (isForward) {
+          this.projectsContainer.resetMorph(1);
+        } else {
+          this.projectsContainer.resetMorph(0);
+        }
+
+        tunnelMoveProperties.projectMorph = 0;
+
+        if (tunnelMoveProperties.cameraStep % 1 === 0) {
+          this.tunnel.regenerate(isForward);
+        }
 
         // this.camAnim = gsap.to(this.camera.position, {
         //   duration: "1",
@@ -216,25 +200,19 @@ class SceneManager {
     });
   }
 
-  updateCameraPercentage(percentage) {
-    let p1 = this.tunnel.path.getPointAt(percentage % 1);
-    let p2 = this.tunnel.path.getPointAt((percentage + 0.03) % 3);
-    this.camera.position.set(p1.x, p1.y, p1.z);
-    this.camera.lookAt(p2);
-  }
+  updateCameraCoordinates(i) {
+    const counter =
+      i * Settings.PROJECT_DISTANCE_BETWEEN -
+      Settings.CAMERA_OFFSET +
+      Settings.PROJECT_OFFSET;
 
-  updateCameraCounter(counter) {
-    let x = Math.cos(TUNNEL.ANGLE_STEP * counter) * TUNNEL.RADIUS;
-    let y = TUNNEL.HEIGHT_STEP * counter;
-    let z = Math.sin(TUNNEL.ANGLE_STEP * counter) * TUNNEL.RADIUS;
+    let x = Settings.HEIGHT_STEP * counter;
+    let y = -Math.cos(Settings.ANGLE_STEP * counter) * Settings.RADIUS;
+    let z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
 
-    this.camera.position.set(x, y, z);
+    this.camera.position.set(x + Settings.HEIGHT_STEP, y, z);
 
-    x = Math.cos(TUNNEL.ANGLE_STEP * (counter + 5)) * TUNNEL.RADIUS;
-    y = TUNNEL.HEIGHT_STEP * (counter + 5);
-    z = Math.sin(TUNNEL.ANGLE_STEP * (counter + 5)) * TUNNEL.RADIUS;
-
-    this.camera.lookAt(new THREE.Vector3(x, y, z));
+    this.camera.rotation.x = Settings.ANGLE_STEP * counter;
   }
 
   update() {
@@ -242,8 +220,7 @@ class SceneManager {
       this.sceneSubjects[i].update();
     }
 
-    //this.updateCameraPercentage(position.percent);
-    this.updateCameraCounter(position.counter);
+    this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
 
     this.renderer.render(this.scene, this.camera);
 

@@ -1,20 +1,18 @@
 import * as THREE from "three";
-
 import { gsap } from "gsap";
 import { Text } from "troika-three-text";
 
+import * as Settings from "../../constants.js";
 import Bender from "../../bender.js";
 const bender = new Bender();
 
 class Project {
-  constructor(title, pos, color, img, camera) {
+  constructor(title, img) {
     this.title = title;
-    this.pos = pos;
-    this.color = color;
     this.img = img;
-    this.camera = camera;
 
     this.mesh = new THREE.Object3D();
+    this.mesh.matrixAutoUpdate = false;
 
     this.setProject();
   }
@@ -24,14 +22,31 @@ class Project {
     this.setTitle();
   }
 
+  setMesh() {
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load(this.img);
+
+    const geometry = this.createGeometry();
+
+    const mesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({
+        map: texture
+        //side: THREE.BackSide
+      })
+    );
+
+    this.mesh = mesh;
+  }
+
   // https://threejs.org/examples/webgl_morphtargets.html
   createGeometry() {
-    const geometry = new THREE.BoxBufferGeometry(4, 2.25, 0.1, 32, 32, 32);
-    const geometry1 = new THREE.BoxBufferGeometry(4, 2.25, 0.1, 32, 32, 32);
-    const geometry2 = new THREE.BoxBufferGeometry(4, 2.25, 0.1, 32, 32, 32);
+    const geometry = new THREE.PlaneBufferGeometry(4, 2.25, 32, 32);
+    const geometry1 = new THREE.PlaneBufferGeometry(4, 2.25, 32, 32);
+    const geometry2 = new THREE.PlaneBufferGeometry(4, 2.25, 32, 32);
 
-    bender.bend(geometry1, "y", -0.2);
-    bender.bend(geometry2, "y", 0.2);
+    bender.bend(geometry1, "y", -Settings.PROJECT_BEND_POWER);
+    bender.bend(geometry2, "y", Settings.PROJECT_BEND_POWER);
 
     // create an empty array to  hold targets for the attribute we want to morph
     // morphing positions and normals is supported
@@ -76,25 +91,6 @@ class Project {
     return geometry;
   }
 
-  setMesh() {
-    const loader = new THREE.TextureLoader();
-    const texture = loader.load(this.img);
-
-    const geometry = this.createGeometry();
-
-    const mesh = new THREE.Mesh(
-      geometry,
-      new THREE.MeshBasicMaterial({
-        map: texture
-      })
-    );
-
-    mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
-    mesh.lookAt(this.camera.position);
-
-    this.mesh = mesh;
-  }
-
   setTitle() {
     const title = new Text();
 
@@ -103,15 +99,13 @@ class Project {
     title.fontSize = 0.4;
     title.color = "#ffffff";
     title.maxWidth = 3;
-    title.anchorX = "left";
-    title.anchorY = "top";
+    title.anchorX = 0;
+    title.anchorY = 1.5;
     title.letterSpacing = 0;
     title.lineHeight = 1;
+    title.depthOffset = -2;
 
     title.sync();
-
-    title.position.set(this.pos.x, this.pos.y - 2.4, this.pos.z - 1);
-    title.lookAt(this.camera.position);
 
     this.title = title;
   }
@@ -126,9 +120,6 @@ class Project {
     //   y: "+=random(-0.2,0.2)",
     //   z: "+=random(-0.2,0.2)"
     // });
-
-    this.mesh.lookAt(this.camera.position);
-    this.title.lookAt(this.camera.position);
   }
 
   morph(state, value) {
