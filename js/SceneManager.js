@@ -152,42 +152,76 @@ class SceneManager {
   }
 
   goToNextProject() {
-    gsap
-      .timeline()
-      .to(tunnelMoveProperties, {
-        cameraStep: isForward ? "+=0.5" : "-=0.5",
-        projectThumbnailBend: 0.85,
-        projectTitleZ: isForward ? 0.5 : -0.5,
-        duration: 1,
-        ease: "power4.in"
-      })
-      .to(tunnelMoveProperties, {
-        cameraStep: isForward ? "+=0.5" : "-=0.5",
-        duration: 1,
-        ease: "elastic.out(1,0.6)",
-        onComplete: () => {
-          prevComplete = true;
-        }
-      })
-      // .to(
-      //   tunnelMoveProperties,
-      //   {
-      //     projectThumbnailBend: 0.85,
-      //     duration: 1,
-      //     ease: "power4.in"
-      //   },
-      //   0
-      // )
-      .to(
-        tunnelMoveProperties,
-        {
-          projectThumbnailBend: 0,
-          projectTitleZ: 0,
-          duration: 2,
-          ease: "elastic.out(1,0.3)"
-        },
-        1.2
-      );
+    if (
+      (!isForward && tunnelMoveProperties.cameraStep <= 0) ||
+      (isForward &&
+        tunnelMoveProperties.cameraStep >= Settings.PROJECTS.length - 1)
+    ) {
+      gsap
+        .timeline()
+        .to(tunnelMoveProperties, {
+          cameraStep: isForward ? "+=0.05" : "-=0.05",
+          projectThumbnailBend: 0.85,
+          projectTitleZ: isForward ? 0.5 : -0.5,
+          duration: 1,
+          ease: "power4.in"
+        })
+        .to(tunnelMoveProperties, {
+          cameraStep: isForward ? "-=0.05" : "+=0.05",
+          duration: 1,
+          ease: "elastic.out(1,0.6)",
+          onComplete: () => {
+            prevComplete = true;
+          }
+        })
+        .to(
+          tunnelMoveProperties,
+          {
+            projectThumbnailBend: 0,
+            projectTitleZ: 0,
+            duration: 2,
+            ease: "elastic.out(1,0.3)"
+          },
+          1.2
+        );
+    } else {
+      gsap
+        .timeline()
+        .to(tunnelMoveProperties, {
+          cameraStep: isForward ? "+=0.5" : "-=0.5",
+          projectThumbnailBend: 0.85,
+          projectTitleZ: isForward ? 0.5 : -0.5,
+          duration: 1,
+          ease: "power4.in"
+        })
+        .to(tunnelMoveProperties, {
+          cameraStep: isForward ? "+=0.5" : "-=0.5",
+          duration: 1,
+          ease: "elastic.out(1,0.6)",
+          onComplete: () => {
+            prevComplete = true;
+          }
+        })
+        // .to(
+        //   tunnelMoveProperties,
+        //   {
+        //     projectThumbnailBend: 0.85,
+        //     duration: 1,
+        //     ease: "power4.in"
+        //   },
+        //   0
+        // )
+        .to(
+          tunnelMoveProperties,
+          {
+            projectThumbnailBend: 0,
+            projectTitleZ: 0,
+            duration: 2,
+            ease: "elastic.out(1,0.3)"
+          },
+          1.2
+        );
+    }
   }
 
   updateCameraCoordinates(i) {
@@ -214,6 +248,13 @@ class SceneManager {
   }
 
   makeWobble() {
+    // if (
+    //   tunnelMoveProperties.cameraStep >= -0.05 &&
+    //   tunnelMoveProperties.cameraStep < Settings.PROJECTS.length - 1 + 0.05
+    // ) {
+    //   this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
+    // }
+
     this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
 
     this.bendProjectThumbnails(

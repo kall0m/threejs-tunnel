@@ -14,7 +14,7 @@ class ProjectsContainer {
   }
 
   setProjectsContainer(scene) {
-    for (let i = 0; i < Settings.PROJECT_IMAGES.length; i++) {
+    for (let i = 0; i < Settings.PROJECTS.length; i++) {
       const counter =
         i * Settings.PROJECT_DISTANCE_BETWEEN + Settings.PROJECT_OFFSET;
 
@@ -23,8 +23,8 @@ class ProjectsContainer {
       const z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
 
       const project = new Project(
-        Settings.PROJECT_TITLES[i],
-        Settings.PROJECT_IMAGES[i]
+        Settings.PROJECTS[i].title,
+        Settings.PROJECTS[i].img
       );
 
       project.container.position.set(x, y, z);
