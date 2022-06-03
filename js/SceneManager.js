@@ -101,6 +101,54 @@ class SceneManager {
     return sceneSubjects;
   }
 
+  update() {
+    for (let i = 0; i < this.sceneSubjects.length; i++) {
+      this.sceneSubjects[i].update();
+    }
+
+    this.makeWobble();
+
+    this.renderer.render(this.scene, this.camera);
+
+    stats.update();
+  }
+
+  makeWobble() {
+    this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
+
+    this.bendProjectThumbnails(
+      isForward
+        ? Settings.PROJECT_BEND_STATE_FORWARD
+        : Settings.PROJECT_BEND_STATE_BACKWARD,
+      tunnelMoveProperties.projectThumbnailBend
+    );
+
+    this.updateProjectTitlesZ(tunnelMoveProperties.projectTitleZ);
+  }
+
+  updateCameraCoordinates(i) {
+    const counter =
+      i * Settings.PROJECT_DISTANCE_BETWEEN -
+      Settings.CAMERA_OFFSET +
+      Settings.PROJECT_OFFSET;
+
+    let x = Settings.HEIGHT_STEP * counter;
+    let y = -Math.cos(Settings.ANGLE_STEP * counter) * Settings.RADIUS;
+    let z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
+
+    this.camera.position.set(x + Settings.HEIGHT_STEP, y, z);
+
+    this.camera.rotation.x = Settings.ANGLE_STEP * counter;
+  }
+
+  bendProjectThumbnails(state, morph) {
+    this.projectsContainer.bendThumbnails(state, morph);
+  }
+
+  updateProjectTitlesZ(z) {
+    this.projectsContainer.updateTitlesZ(z);
+  }
+
   onWindowResize() {
     // update sizes when a resize event occurs
     SIZES.width = window.innerWidth;
@@ -222,61 +270,6 @@ class SceneManager {
           1.2
         );
     }
-  }
-
-  updateCameraCoordinates(i) {
-    const counter =
-      i * Settings.PROJECT_DISTANCE_BETWEEN -
-      Settings.CAMERA_OFFSET +
-      Settings.PROJECT_OFFSET;
-
-    let x = Settings.HEIGHT_STEP * counter;
-    let y = -Math.cos(Settings.ANGLE_STEP * counter) * Settings.RADIUS;
-    let z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
-
-    this.camera.position.set(x + Settings.HEIGHT_STEP, y, z);
-
-    this.camera.rotation.x = Settings.ANGLE_STEP * counter;
-  }
-
-  bendProjectThumbnails(state, morph) {
-    this.projectsContainer.bendThumbnails(state, morph);
-  }
-
-  updateProjectTitlesZ(z) {
-    this.projectsContainer.updateTitlesZ(z);
-  }
-
-  makeWobble() {
-    // if (
-    //   tunnelMoveProperties.cameraStep >= -0.05 &&
-    //   tunnelMoveProperties.cameraStep < Settings.PROJECTS.length - 1 + 0.05
-    // ) {
-    //   this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
-    // }
-
-    this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
-
-    this.bendProjectThumbnails(
-      isForward
-        ? Settings.PROJECT_BEND_STATE_FORWARD
-        : Settings.PROJECT_BEND_STATE_BACKWARD,
-      tunnelMoveProperties.projectThumbnailBend
-    );
-
-    this.updateProjectTitlesZ(tunnelMoveProperties.projectTitleZ);
-  }
-
-  update() {
-    for (let i = 0; i < this.sceneSubjects.length; i++) {
-      this.sceneSubjects[i].update();
-    }
-
-    this.makeWobble();
-
-    this.renderer.render(this.scene, this.camera);
-
-    stats.update();
   }
 }
 
