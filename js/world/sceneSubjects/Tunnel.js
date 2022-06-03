@@ -30,11 +30,9 @@ class Tunnel {
 
     const mesh = new THREE.Mesh(geometry, material);
 
-    const x = Settings.HEIGHT_STEP * counter;
-    const y = -Math.cos(Settings.ANGLE_STEP * counter) * Settings.RADIUS;
-    const z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
+    const helixVector = Settings.getHelixCoordinatesBy(counter);
 
-    mesh.position.set(x, y, z);
+    mesh.position.set(helixVector.x, helixVector.y, helixVector.z);
     mesh.rotation.x = Settings.ANGLE_STEP * counter;
 
     return mesh;

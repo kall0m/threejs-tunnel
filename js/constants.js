@@ -57,6 +57,14 @@ export const OBJ_PER_TURN = 100;
 export const ANGLE_STEP = (Math.PI * 2) / OBJ_PER_TURN;
 export const HEIGHT_STEP = 2;
 
+export function getHelixCoordinatesBy(counter) {
+  const x = HEIGHT_STEP * counter;
+  const y = -Math.cos(ANGLE_STEP * counter) * RADIUS + counter;
+  const z = Math.sin(-ANGLE_STEP * counter) * RADIUS;
+
+  return { x, y, z };
+}
+
 // CAMERA
 export const CAMERA_FOV = 80;
 export const CAMERA_OFFSET = 1;

@@ -13,21 +13,32 @@ class ProjectsContainer {
     this.setProjectsContainer(scene);
   }
 
+  getHelixVector(counter) {
+    const x = Settings.HEIGHT_STEP * counter;
+    const y =
+      -Math.cos(Settings.ANGLE_STEP * counter) * Settings.RADIUS + counter * 2;
+    const z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
+
+    return new THREE.Vector3(x, y, z);
+  }
+
   setProjectsContainer(scene) {
     for (let i = 0; i < Settings.PROJECTS.length; i++) {
-      const counter =
-        i * Settings.PROJECT_DISTANCE_BETWEEN + Settings.PROJECT_OFFSET;
-
-      const x = Settings.HEIGHT_STEP * counter;
-      const y = -Math.cos(Settings.ANGLE_STEP * counter) * Settings.RADIUS;
-      const z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
-
       const project = new Project(
         Settings.PROJECTS[i].title,
         Settings.PROJECTS[i].img
       );
 
-      project.container.position.set(x, y, z);
+      const counter =
+        i * Settings.PROJECT_DISTANCE_BETWEEN + Settings.PROJECT_OFFSET;
+
+      const helixVector = Settings.getHelixCoordinatesBy(counter);
+
+      project.container.position.set(
+        helixVector.x,
+        helixVector.y,
+        helixVector.z
+      );
       project.container.rotation.x = Settings.ANGLE_STEP * counter;
       project.container.updateMatrix();
 

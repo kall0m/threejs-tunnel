@@ -132,11 +132,13 @@ class SceneManager {
       Settings.CAMERA_OFFSET +
       Settings.PROJECT_OFFSET;
 
-    let x = Settings.HEIGHT_STEP * counter;
-    let y = -Math.cos(Settings.ANGLE_STEP * counter) * Settings.RADIUS;
-    let z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
+    const helixVector = Settings.getHelixCoordinatesBy(counter);
 
-    this.camera.position.set(x + Settings.HEIGHT_STEP, y, z);
+    this.camera.position.set(
+      helixVector.x + Settings.HEIGHT_STEP,
+      helixVector.y,
+      helixVector.z
+    );
 
     this.camera.rotation.x = Settings.ANGLE_STEP * counter;
   }
