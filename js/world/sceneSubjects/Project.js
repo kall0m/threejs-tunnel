@@ -14,6 +14,9 @@ class Project {
     this.mesh = new THREE.Object3D();
     this.mesh.matrixAutoUpdate = false;
 
+    this.container = new THREE.Group();
+    this.container.matrixAutoUpdate = false;
+
     this.setProject();
   }
 
@@ -37,6 +40,8 @@ class Project {
     );
 
     this.mesh = mesh;
+    mesh.position.y -= Settings.PROJECT_OFFSET_Y;
+    this.container.add(mesh);
   }
 
   // https://threejs.org/examples/webgl_morphtargets.html
@@ -100,7 +105,7 @@ class Project {
     title.color = "#ffffff";
     title.maxWidth = 3;
     title.anchorX = 0;
-    title.anchorY = 1.5;
+    title.anchorY = 1.3;
     title.letterSpacing = 0;
     title.lineHeight = 1;
     title.depthOffset = -2;
@@ -108,6 +113,8 @@ class Project {
     title.sync();
 
     this.title = title;
+    title.position.y -= Settings.PROJECT_OFFSET_Y;
+    this.container.add(title);
   }
 
   update() {

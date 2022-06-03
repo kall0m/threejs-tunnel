@@ -19,8 +19,7 @@ let isForward = false;
 
 let tunnelMoveProperties = {
   cameraStep: 0,
-  projectMorph: 0,
-  projectMorphBackward: 0
+  projectMorph: 0
 };
 
 class SceneManager {

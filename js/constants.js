@@ -28,6 +28,7 @@ export const PROJECT_OFFSET = 0;
 export const PROJECT_BEND_POWER = 0.3;
 export const PROJECT_BEND_STATE_FORWARD = 0;
 export const PROJECT_BEND_STATE_BACKWARD = 1;
+export const PROJECT_OFFSET_Y = 1;
 
 // TUNNEL
 export const RADIUS = 80;

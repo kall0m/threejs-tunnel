@@ -27,15 +27,12 @@ class ProjectsContainer {
         Settings.PROJECT_IMAGES[i]
       );
 
-      project.mesh.position.set(x, y, z);
-      project.mesh.rotation.x = Settings.ANGLE_STEP * counter;
-
-      project.title.position.set(x, y, z);
-      project.title.rotation.x = Settings.ANGLE_STEP * counter;
+      project.container.position.set(x, y, z);
+      project.container.rotation.x = Settings.ANGLE_STEP * counter;
+      project.container.updateMatrix();
 
       this.projects.push(project);
-      this.container.add(project.mesh);
-      this.container.add(project.title);
+      this.container.add(project.container);
     }
 
     scene.add(this.container);
