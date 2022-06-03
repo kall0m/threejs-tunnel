@@ -19,7 +19,8 @@ let isForward = false;
 
 let tunnelMoveProperties = {
   cameraStep: 0,
-  projectMorph: 0
+  projectThumbnailBend: 0,
+  projectTitleZ: 0
 };
 
 class SceneManager {
@@ -155,6 +156,8 @@ class SceneManager {
       .timeline()
       .to(tunnelMoveProperties, {
         cameraStep: isForward ? "+=0.5" : "-=0.5",
+        projectThumbnailBend: 0.85,
+        projectTitleZ: isForward ? 0.5 : -0.5,
         duration: 1,
         ease: "power4.in"
       })
@@ -166,19 +169,20 @@ class SceneManager {
           prevComplete = true;
         }
       })
+      // .to(
+      //   tunnelMoveProperties,
+      //   {
+      //     projectThumbnailBend: 0.85,
+      //     duration: 1,
+      //     ease: "power4.in"
+      //   },
+      //   0
+      // )
       .to(
         tunnelMoveProperties,
         {
-          projectMorph: 0.85,
-          duration: 1,
-          ease: "power4.in"
-        },
-        0
-      )
-      .to(
-        tunnelMoveProperties,
-        {
-          projectMorph: 0,
+          projectThumbnailBend: 0,
+          projectTitleZ: 0,
           duration: 2,
           ease: "elastic.out(1,0.3)"
         },
@@ -201,8 +205,25 @@ class SceneManager {
     this.camera.rotation.x = Settings.ANGLE_STEP * counter;
   }
 
-  updateProjectsBend(state, morph) {
-    this.projectsContainer.morph(state, morph);
+  bendProjectThumbnails(state, morph) {
+    this.projectsContainer.bendThumbnails(state, morph);
+  }
+
+  updateProjectTitlesZ(z) {
+    this.projectsContainer.updateTitlesZ(z);
+  }
+
+  makeWobble() {
+    this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
+
+    this.bendProjectThumbnails(
+      isForward
+        ? Settings.PROJECT_BEND_STATE_FORWARD
+        : Settings.PROJECT_BEND_STATE_BACKWARD,
+      tunnelMoveProperties.projectThumbnailBend
+    );
+
+    this.updateProjectTitlesZ(tunnelMoveProperties.projectTitleZ);
   }
 
   update() {
@@ -210,17 +231,7 @@ class SceneManager {
       this.sceneSubjects[i].update();
     }
 
-    this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
-
-    isForward
-      ? this.updateProjectsBend(
-          Settings.PROJECT_BEND_STATE_FORWARD,
-          tunnelMoveProperties.projectMorph
-        )
-      : this.updateProjectsBend(
-          Settings.PROJECT_BEND_STATE_BACKWARD,
-          tunnelMoveProperties.projectMorph
-        );
+    this.makeWobble();
 
     this.renderer.render(this.scene, this.camera);
 

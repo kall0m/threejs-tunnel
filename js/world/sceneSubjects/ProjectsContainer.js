@@ -44,9 +44,15 @@ class ProjectsContainer {
     }
   }
 
-  morph(state, value) {
+  bendThumbnails(state, value) {
     for (let i = 0; i < this.projects.length; i++) {
-      this.projects[i].morph(state, value);
+      this.projects[i].bendThumbnail(state, value);
+    }
+  }
+
+  updateTitlesZ(z) {
+    for (let i = 0; i < this.projects.length; i++) {
+      this.projects[i].updateTitleZ(z);
     }
   }
 }

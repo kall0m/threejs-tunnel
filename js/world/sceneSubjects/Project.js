@@ -129,8 +129,12 @@ class Project {
     // });
   }
 
-  morph(state, value) {
+  bendThumbnail(state, value) {
     this.mesh.morphTargetInfluences[state] = value;
+  }
+
+  updateTitleZ(z) {
+    this.title.position.z = z;
   }
 }
 
