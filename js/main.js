@@ -19,6 +19,9 @@ function bindEventListeners() {
 
   window.ontouchstart = touchstartCanvas;
   window.ontouchend = touchendCanvas;
+
+  window.onpointermove = pointerMoveCanvas;
+  window.onclick = clickCanvas;
 }
 
 function resizeCanvas() {
@@ -39,6 +42,20 @@ function touchendCanvas(event) {
   touchendY = event.changedTouches[0].screenY;
 
   sceneManager.handleGesture(touchstartX, touchstartY, touchendX, touchendY);
+}
+
+function pointerMoveCanvas(event) {
+  const isProjectHovered = sceneManager.onPointerMove(event);
+
+  if (isProjectHovered) {
+    document.getElementById("app").style.cursor = "pointer";
+  } else {
+    document.getElementById("app").style.cursor = "default";
+  }
+}
+
+function clickCanvas() {
+  sceneManager.clickOnProject();
 }
 
 function render() {

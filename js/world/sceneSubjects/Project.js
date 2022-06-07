@@ -46,9 +46,9 @@ class Project {
 
   // https://threejs.org/examples/webgl_morphtargets.html
   createGeometry() {
-    const geometry = new THREE.PlaneBufferGeometry(1, 0.65, 16, 16);
-    const geometry1 = new THREE.PlaneBufferGeometry(1, 0.65, 16, 16);
-    const geometry2 = new THREE.PlaneBufferGeometry(1, 0.65, 16, 16);
+    const geometry = new THREE.PlaneBufferGeometry(16 / 16, 9 / 16, 16, 16);
+    const geometry1 = new THREE.PlaneBufferGeometry(16 / 16, 9 / 16, 16, 16);
+    const geometry2 = new THREE.PlaneBufferGeometry(16 / 16, 9 / 16, 16, 16);
 
     bender.bend(geometry1, "y", -Settings.PROJECT_BEND_POWER);
     bender.bend(geometry2, "y", Settings.PROJECT_BEND_POWER);

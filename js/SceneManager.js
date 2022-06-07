@@ -12,6 +12,8 @@ const SIZES = {
   height: window.innerHeight
 };
 
+const pointer = new THREE.Vector2();
+
 const stats = Stats();
 
 let prevComplete = true;
@@ -30,6 +32,7 @@ class SceneManager {
     this.camera = this.buildCamera();
 
     this.projectsContainer = [];
+    this.currentProjectIndex = 0;
 
     this.tunnel = new THREE.Object3D();
     this.tunnel.matrixAutoUpdate = false;
@@ -254,6 +257,7 @@ class SceneManager {
           ease: "elastic.out(1,0.6)",
           onComplete: () => {
             prevComplete = true;
+            isForward ? this.currentProjectIndex++ : this.currentProjectIndex--;
           }
         })
         .to(
@@ -266,6 +270,55 @@ class SceneManager {
           },
           1.2
         );
+    }
+  }
+
+  onPointerMove(event) {
+    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    let selectedObject;
+    const raycaster = new THREE.Raycaster();
+
+    raycaster.setFromCamera(pointer, this.camera);
+
+    const intersects = raycaster.intersectObjects(
+      this.projectsContainer.projects[this.currentProjectIndex].container
+        .children,
+      true
+    ); //array
+
+    if (intersects.length > 0) {
+      selectedObject = intersects[0];
+      console.log(
+        'Project "',
+        selectedObject.object.parent.children[1].text,
+        '" hovered.'
+      );
+    }
+
+    return intersects.length > 0;
+  }
+
+  clickOnProject() {
+    let selectedObject;
+    const raycaster = new THREE.Raycaster();
+
+    raycaster.setFromCamera(pointer, this.camera);
+
+    const intersects = raycaster.intersectObjects(
+      this.projectsContainer.projects[this.currentProjectIndex].container
+        .children,
+      true
+    ); //array
+
+    if (intersects.length > 0) {
+      selectedObject = intersects[0];
+      console.log(
+        'Project "',
+        selectedObject.object.parent.children[1].text,
+        '" clicked.'
+      );
     }
   }
 }
