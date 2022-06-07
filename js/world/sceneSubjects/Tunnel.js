@@ -23,7 +23,7 @@ class Tunnel {
   }
 
   createMesh(counter) {
-    const geometry = new THREE.TorusGeometry(5, 0.02, 32, 6);
+    const geometry = new THREE.TorusGeometry(1.4, 0.01, 16, 6);
     const material = new THREE.MeshBasicMaterial({
       color: "#ffffff"
     });

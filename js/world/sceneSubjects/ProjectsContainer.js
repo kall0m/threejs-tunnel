@@ -13,15 +13,6 @@ class ProjectsContainer {
     this.setProjectsContainer(scene);
   }
 
-  getHelixVector(counter) {
-    const x = Settings.HEIGHT_STEP * counter;
-    const y =
-      -Math.cos(Settings.ANGLE_STEP * counter) * Settings.RADIUS + counter * 2;
-    const z = Math.sin(-Settings.ANGLE_STEP * counter) * Settings.RADIUS;
-
-    return new THREE.Vector3(x, y, z);
-  }
-
   setProjectsContainer(scene) {
     for (let i = 0; i < Settings.PROJECTS.length; i++) {
       const project = new Project(

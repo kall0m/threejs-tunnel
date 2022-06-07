@@ -46,9 +46,9 @@ class Project {
 
   // https://threejs.org/examples/webgl_morphtargets.html
   createGeometry() {
-    const geometry = new THREE.PlaneBufferGeometry(4, 2.25, 32, 32);
-    const geometry1 = new THREE.PlaneBufferGeometry(4, 2.25, 32, 32);
-    const geometry2 = new THREE.PlaneBufferGeometry(4, 2.25, 32, 32);
+    const geometry = new THREE.PlaneBufferGeometry(1, 0.65, 16, 16);
+    const geometry1 = new THREE.PlaneBufferGeometry(1, 0.65, 16, 16);
+    const geometry2 = new THREE.PlaneBufferGeometry(1, 0.65, 16, 16);
 
     bender.bend(geometry1, "y", -Settings.PROJECT_BEND_POWER);
     bender.bend(geometry2, "y", Settings.PROJECT_BEND_POWER);
@@ -101,14 +101,14 @@ class Project {
 
     title.text = this.title.toUpperCase();
     title.font = "../../../fonts/VectoraLTStd-Bold.woff";
-    title.fontSize = 0.4;
+    title.fontSize = 0.1;
     title.color = "#ffffff";
-    title.maxWidth = 3;
+    title.maxWidth = 0.75;
     title.anchorX = 0;
-    title.anchorY = 1.3;
+    title.anchorY = 0.4;
     title.letterSpacing = 0;
     title.lineHeight = 1;
-    title.depthOffset = -2;
+    title.depthOffset = -1;
 
     title.sync();
 

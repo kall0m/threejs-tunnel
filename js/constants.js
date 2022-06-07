@@ -45,29 +45,29 @@ export const PROJECTS = [
 ];
 export const PROJECT_DISTANCE_BETWEEN = 4;
 export const PROJECT_OFFSET = 0;
-export const PROJECT_BEND_POWER = 0.3;
+export const PROJECT_BEND_POWER = 1.2;
 export const PROJECT_BEND_STATE_FORWARD = 0;
 export const PROJECT_BEND_STATE_BACKWARD = 1;
-export const PROJECT_OFFSET_Y = 1;
+export const PROJECT_OFFSET_Y = 0.5;
 
 // TUNNEL
-export const RADIUS = 80;
+export const RADIUS = 300;
 export const TURNS = 3;
-export const OBJ_PER_TURN = 100;
+export const OBJ_PER_TURN = 600;
 export const ANGLE_STEP = (Math.PI * 2) / OBJ_PER_TURN;
-export const HEIGHT_STEP = 2;
+export const HEIGHT_STEP = 0.35;
 
 export function getHelixCoordinatesBy(counter) {
   const x = HEIGHT_STEP * counter;
-  const y = -Math.cos(ANGLE_STEP * counter) * RADIUS + counter;
+  const y = -Math.cos(ANGLE_STEP * counter) * RADIUS;
   const z = Math.sin(-ANGLE_STEP * counter) * RADIUS;
 
   return { x, y, z };
 }
 
 // CAMERA
-export const CAMERA_FOV = 80;
-export const CAMERA_OFFSET = 1;
+export const CAMERA_FOV = 30;
+export const CAMERA_OFFSET = 1.5;
 
 // REGENERATE
 export const REGENERATION_NUMBER = 1;

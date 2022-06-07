@@ -135,12 +135,14 @@ class SceneManager {
     const helixVector = Settings.getHelixCoordinatesBy(counter);
 
     this.camera.position.set(
-      helixVector.x + Settings.HEIGHT_STEP,
+      helixVector.x + Settings.HEIGHT_STEP + 0.1,
       helixVector.y,
       helixVector.z
     );
 
-    this.camera.rotation.x = Settings.ANGLE_STEP * counter;
+    this.camera.rotation.x = Settings.ANGLE_STEP * counter - 0.08;
+    this.camera.rotation.y = -0.01;
+    this.camera.rotation.z = 0.01;
   }
 
   bendProjectThumbnails(state, morph) {
@@ -202,6 +204,8 @@ class SceneManager {
   }
 
   goToNextProject() {
+    // if first project is in view, block the camera from going backward
+    // if last project is in view, block the camera from going forward
     if (
       (!isForward && tunnelMoveProperties.cameraStep <= 0) ||
       (isForward &&
@@ -212,7 +216,7 @@ class SceneManager {
         .to(tunnelMoveProperties, {
           cameraStep: isForward ? "+=0.05" : "-=0.05",
           projectThumbnailBend: 0.85,
-          projectTitleZ: isForward ? 0.5 : -0.5,
+          projectTitleZ: isForward ? 0.2 : -0.2,
           duration: 1,
           ease: "power4.in"
         })
@@ -240,7 +244,7 @@ class SceneManager {
         .to(tunnelMoveProperties, {
           cameraStep: isForward ? "+=0.5" : "-=0.5",
           projectThumbnailBend: 0.85,
-          projectTitleZ: isForward ? 0.5 : -0.5,
+          projectTitleZ: isForward ? 0.3 : -0.3,
           duration: 1,
           ease: "power4.in"
         })
@@ -252,15 +256,6 @@ class SceneManager {
             prevComplete = true;
           }
         })
-        // .to(
-        //   tunnelMoveProperties,
-        //   {
-        //     projectThumbnailBend: 0.85,
-        //     duration: 1,
-        //     ease: "power4.in"
-        //   },
-        //   0
-        // )
         .to(
           tunnelMoveProperties,
           {
