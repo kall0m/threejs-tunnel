@@ -8,6 +8,8 @@ let touchstartY = 0;
 let touchendX = 0;
 let touchendY = 0;
 
+let openedProject = null;
+
 bindEventListeners();
 render();
 
@@ -22,6 +24,9 @@ function bindEventListeners() {
 
   window.onpointermove = pointerMoveCanvas;
   window.onclick = clickCanvas;
+
+  let closeButton = document.getElementById("closeButton");
+  closeButton.onclick = hideCloseButton;
 }
 
 function resizeCanvas() {
@@ -45,9 +50,9 @@ function touchendCanvas(event) {
 }
 
 function pointerMoveCanvas(event) {
-  const isProjectHovered = sceneManager.onPointerMove(event);
+  const selectedProjectGroup = sceneManager.onPointerMove(event);
 
-  if (isProjectHovered) {
+  if (selectedProjectGroup !== null && openedProject === null) {
     document.getElementById("app").style.cursor = "pointer";
   } else {
     document.getElementById("app").style.cursor = "default";
@@ -55,7 +60,20 @@ function pointerMoveCanvas(event) {
 }
 
 function clickCanvas() {
-  sceneManager.clickOnProject();
+  const selectedProjectGroup = sceneManager.openProject();
+
+  if (selectedProjectGroup !== null) {
+    document.getElementById("closeButton").style.display = "block";
+    document.getElementById("projectContent").style.display = "block";
+    openedProject = selectedProjectGroup;
+  }
+}
+
+function hideCloseButton() {
+  sceneManager.closeProject(openedProject);
+  document.getElementById("closeButton").style.display = "none";
+  document.getElementById("projectContent").style.display = "none";
+  openedProject = null;
 }
 
 function render() {

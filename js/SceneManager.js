@@ -273,52 +273,61 @@ class SceneManager {
     }
   }
 
+  getSelectedProjectGroup() {
+    let selectedObject;
+    const raycaster = new THREE.Raycaster();
+
+    raycaster.setFromCamera(pointer, this.camera);
+
+    const intersects = raycaster.intersectObjects(
+      this.projectsContainer.projects[this.currentProjectIndex].container
+        .children,
+      true
+    );
+
+    if (intersects.length > 0) {
+      selectedObject = intersects[0];
+
+      return selectedObject.object.parent;
+    }
+
+    return null;
+  }
+
   onPointerMove(event) {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    let selectedObject;
-    const raycaster = new THREE.Raycaster();
+    const selectedProjectGroup = this.getSelectedProjectGroup();
 
-    raycaster.setFromCamera(pointer, this.camera);
-
-    const intersects = raycaster.intersectObjects(
-      this.projectsContainer.projects[this.currentProjectIndex].container
-        .children,
-      true
-    ); //array
-
-    if (intersects.length > 0) {
-      selectedObject = intersects[0];
-      console.log(
-        'Project "',
-        selectedObject.object.parent.children[1].text,
-        '" hovered.'
-      );
-    }
-
-    return intersects.length > 0;
+    return selectedProjectGroup;
   }
 
-  clickOnProject() {
-    let selectedObject;
-    const raycaster = new THREE.Raycaster();
+  openProject() {
+    if (prevComplete) {
+      const selectedProjectGroup = this.getSelectedProjectGroup();
 
-    raycaster.setFromCamera(pointer, this.camera);
+      if (selectedProjectGroup) {
+        selectedProjectGroup.scale.set(2, 2, 2);
+        selectedProjectGroup.position.y += 1.2;
+        selectedProjectGroup.updateMatrix();
 
-    const intersects = raycaster.intersectObjects(
-      this.projectsContainer.projects[this.currentProjectIndex].container
-        .children,
-      true
-    ); //array
+        prevComplete = false;
+      }
 
-    if (intersects.length > 0) {
-      selectedObject = intersects[0];
-      console.log(
-        'Project "',
-        selectedObject.object.parent.children[1].text,
-        '" clicked.'
-      );
+      return selectedProjectGroup;
+    }
+
+    return null;
+  }
+
+  closeProject(selectedProjectGroup) {
+    if (selectedProjectGroup) {
+      selectedProjectGroup.scale.set(1, 1, 1);
+      selectedProjectGroup.position.y -= 1.2;
+      selectedProjectGroup.updateMatrix();
+
+      prevComplete = true;
     }
   }
 }
