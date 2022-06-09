@@ -188,13 +188,13 @@ class SceneManager {
 
   // for touch screen
   handleGesture(touchstartX, touchstartY, touchendX, touchendY) {
-    if (prevComplete) {
-      prevComplete = false;
+    const delx = touchendX - touchstartX;
+    const dely = touchendY - touchstartY;
 
-      const delx = touchendX - touchstartX;
-      const dely = touchendY - touchstartY;
+    if (Math.abs(delx) < Math.abs(dely)) {
+      if (prevComplete) {
+        prevComplete = false;
 
-      if (Math.abs(delx) < Math.abs(dely)) {
         if (dely > 0) {
           isForward = true;
         } else {
@@ -273,7 +273,10 @@ class SceneManager {
     }
   }
 
-  getSelectedProjectGroup() {
+  getSelectedProjectGroup(event) {
+    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
     let selectedObject;
     const raycaster = new THREE.Raycaster();
 
@@ -294,25 +297,50 @@ class SceneManager {
     return null;
   }
 
-  onPointerMove(event) {
-    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    const selectedProjectGroup = this.getSelectedProjectGroup();
-
-    return selectedProjectGroup;
-  }
-
-  openProject() {
+  openProject(event, projectContent) {
     if (prevComplete) {
-      const selectedProjectGroup = this.getSelectedProjectGroup();
+      const selectedProjectGroup = this.getSelectedProjectGroup(event);
 
       if (selectedProjectGroup) {
-        selectedProjectGroup.scale.set(2, 2, 2);
-        selectedProjectGroup.position.y += 1.2;
-        selectedProjectGroup.updateMatrix();
-
-        prevComplete = false;
+        gsap
+          .timeline()
+          .to(selectedProjectGroup.position, {
+            y: "+=1",
+            duration: 0.6,
+            ease: "power4.in",
+            onUpdate: () => {
+              selectedProjectGroup.updateMatrix();
+            },
+            onComplete: () => {
+              prevComplete = false;
+            }
+          })
+          .to(
+            selectedProjectGroup.scale,
+            {
+              x: 1.6,
+              y: 1.6,
+              z: 1.6,
+              duration: 0.6,
+              ease: "power4.in",
+              onUpdate: () => {
+                selectedProjectGroup.updateMatrix();
+              }
+            },
+            0
+          )
+          .to(
+            projectContent,
+            {
+              transform: "translateY(-80%)",
+              duration: 0.6,
+              ease: "power4.in",
+              onStart: () => {
+                projectContent.style.display = "block";
+              }
+            },
+            0
+          );
       }
 
       return selectedProjectGroup;
@@ -321,13 +349,47 @@ class SceneManager {
     return null;
   }
 
-  closeProject(selectedProjectGroup) {
-    if (selectedProjectGroup) {
-      selectedProjectGroup.scale.set(1, 1, 1);
-      selectedProjectGroup.position.y -= 1.2;
-      selectedProjectGroup.updateMatrix();
-
-      prevComplete = true;
+  closeProject(selectedProjectGroup, projectContent) {
+    if (selectedProjectGroup && !prevComplete) {
+      gsap
+        .timeline()
+        .to(projectContent, {
+          transform: "translateY(0)",
+          duration: 0.6,
+          ease: "power4.in",
+          onComplete: () => {
+            projectContent.style.display = "none";
+          }
+        })
+        .to(
+          selectedProjectGroup.position,
+          {
+            y: "-=1",
+            duration: 0.6,
+            ease: "power4.in",
+            onUpdate: () => {
+              selectedProjectGroup.updateMatrix();
+            },
+            onComplete: () => {
+              prevComplete = true;
+            }
+          },
+          0
+        )
+        .to(
+          selectedProjectGroup.scale,
+          {
+            x: 1,
+            y: 1,
+            z: 1,
+            duration: 0.6,
+            ease: "power4.in",
+            onUpdate: () => {
+              selectedProjectGroup.updateMatrix();
+            }
+          },
+          0
+        );
     }
   }
 }

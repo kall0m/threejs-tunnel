@@ -50,7 +50,7 @@ function touchendCanvas(event) {
 }
 
 function pointerMoveCanvas(event) {
-  const selectedProjectGroup = sceneManager.onPointerMove(event);
+  const selectedProjectGroup = sceneManager.getSelectedProjectGroup(event);
 
   if (selectedProjectGroup !== null && openedProject === null) {
     document.getElementById("app").style.cursor = "pointer";
@@ -59,20 +59,21 @@ function pointerMoveCanvas(event) {
   }
 }
 
-function clickCanvas() {
-  const selectedProjectGroup = sceneManager.openProject();
+function clickCanvas(event) {
+  const projectContent = document.getElementById("projectContent");
+  const selectedProjectGroup = sceneManager.openProject(event, projectContent);
 
   if (selectedProjectGroup !== null) {
     document.getElementById("closeButton").style.display = "block";
-    document.getElementById("projectContent").style.display = "block";
     openedProject = selectedProjectGroup;
   }
 }
 
 function hideCloseButton() {
-  sceneManager.closeProject(openedProject);
+  const projectContent = document.getElementById("projectContent");
+
+  sceneManager.closeProject(openedProject, projectContent);
   document.getElementById("closeButton").style.display = "none";
-  document.getElementById("projectContent").style.display = "none";
   openedProject = null;
 }
 
