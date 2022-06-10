@@ -10,6 +10,12 @@ let touchendY = 0;
 
 let openedProject = null;
 
+const projectContainer = document.getElementById("projectContainer");
+const projectContainer2 = document.getElementById("projectContainer2");
+const projectContainer3 = document.getElementById("projectContainer3");
+const projectContent = document.getElementById("projectContent");
+const closeButton = document.getElementById("closeButton");
+
 bindEventListeners();
 render();
 
@@ -23,10 +29,9 @@ function bindEventListeners() {
   window.ontouchend = touchendCanvas;
 
   window.onpointermove = pointerMoveCanvas;
-  window.onclick = clickCanvas;
+  window.onclick = openProject;
 
-  let closeButton = document.getElementById("closeButton");
-  closeButton.onclick = hideCloseButton;
+  closeButton.onclick = closeProject;
 }
 
 function resizeCanvas() {
@@ -59,21 +64,31 @@ function pointerMoveCanvas(event) {
   }
 }
 
-function clickCanvas(event) {
-  const projectContent = document.getElementById("projectContent");
-  const selectedProjectGroup = sceneManager.openProject(event, projectContent);
+function openProject(event) {
+  const selectedProjectGroup = sceneManager.openProject(
+    event,
+    projectContainer,
+    projectContainer2,
+    projectContainer3,
+    projectContent
+  );
 
   if (selectedProjectGroup !== null) {
-    document.getElementById("closeButton").style.display = "block";
+    closeButton.style.display = "block";
     openedProject = selectedProjectGroup;
   }
 }
 
-function hideCloseButton() {
-  const projectContent = document.getElementById("projectContent");
+function closeProject() {
+  sceneManager.closeProject(
+    openedProject,
+    projectContainer,
+    projectContainer2,
+    projectContainer3,
+    projectContent
+  );
 
-  sceneManager.closeProject(openedProject, projectContent);
-  document.getElementById("closeButton").style.display = "none";
+  closeButton.style.display = "none";
   openedProject = null;
 }
 

@@ -144,8 +144,8 @@ class SceneManager {
     );
 
     this.camera.rotation.x = Settings.ANGLE_STEP * counter - 0.08;
-    this.camera.rotation.y = -0.01;
-    this.camera.rotation.z = 0.01;
+    this.camera.rotation.y = -0.016;
+    this.camera.rotation.z = 0.0;
   }
 
   bendProjectThumbnails(state, morph) {
@@ -297,32 +297,42 @@ class SceneManager {
     return null;
   }
 
-  openProject(event, projectContent) {
+  openProject(
+    event,
+    projectContainer,
+    projectContainer2,
+    projectContainer3,
+    projectContent
+  ) {
     if (prevComplete) {
       const selectedProjectGroup = this.getSelectedProjectGroup(event);
 
       if (selectedProjectGroup) {
         gsap
           .timeline()
-          .to(selectedProjectGroup.position, {
-            y: "+=1",
-            duration: 0.6,
-            ease: "power4.in",
-            onUpdate: () => {
-              selectedProjectGroup.updateMatrix();
+          .to(
+            selectedProjectGroup.position,
+            {
+              y: "+=" + SIZES.height / (SIZES.height - 35),
+              duration: 0.6,
+              ease: "power2.inOut",
+              onUpdate: () => {
+                selectedProjectGroup.updateMatrix();
+              },
+              onComplete: () => {
+                prevComplete = false;
+              }
             },
-            onComplete: () => {
-              prevComplete = false;
-            }
-          })
+            0
+          )
           .to(
             selectedProjectGroup.scale,
             {
-              x: 1.6,
-              y: 1.6,
-              z: 1.6,
+              x: SIZES.height / (SIZES.height - 500),
+              y: SIZES.height / (SIZES.height - 500),
+              z: SIZES.height / (SIZES.height - 500),
               duration: 0.6,
-              ease: "power4.in",
+              ease: "power2.inOut",
               onUpdate: () => {
                 selectedProjectGroup.updateMatrix();
               }
@@ -330,14 +340,74 @@ class SceneManager {
             0
           )
           .to(
+            projectContainer,
+            {
+              transform: "translateY(-50vh)",
+              duration: 0.6,
+              ease: "power2.inOut",
+              onStart: () => {
+                projectContainer.style.display = "block";
+              }
+            },
+            0
+          )
+          .to(
+            projectContainer,
+            {
+              borderRadius: "0",
+              duration: 0.6,
+              ease: "power2.inOut"
+            },
+            0.2
+          )
+          .to(
+            projectContainer2,
+            {
+              transform: "translateY(-50vh)",
+              duration: 0.6,
+              ease: "power2.inOut",
+              onStart: () => {
+                projectContainer2.style.display = "block";
+              }
+            },
+            0.05
+          )
+          .to(
+            projectContainer2,
+            {
+              borderRadius: "0",
+              duration: 0.6,
+              ease: "power2.inOut"
+            },
+            0.25
+          )
+          .to(
+            projectContainer3,
+            {
+              transform: "translateY(-50vh)",
+              duration: 0.6,
+              ease: "power2.inOut",
+              onStart: () => {
+                projectContainer3.style.display = "block";
+              }
+            },
+            0.1
+          )
+          .to(
+            projectContainer3,
+            {
+              borderRadius: "0",
+              duration: 0.6,
+              ease: "power2.inOut"
+            },
+            0.3
+          )
+          .to(
             projectContent,
             {
-              transform: "translateY(-80%)",
-              duration: 0.6,
-              ease: "power4.in",
-              onStart: () => {
-                projectContent.style.display = "block";
-              }
+              opacity: "1",
+              duration: 1.2,
+              ease: "power2.inOut"
             },
             0
           );
@@ -349,24 +419,94 @@ class SceneManager {
     return null;
   }
 
-  closeProject(selectedProjectGroup, projectContent) {
+  closeProject(
+    selectedProjectGroup,
+    projectContainer,
+    projectContainer2,
+    projectContainer3,
+    projectContent
+  ) {
     if (selectedProjectGroup && !prevComplete) {
       gsap
         .timeline()
-        .to(projectContent, {
-          transform: "translateY(0)",
-          duration: 0.6,
-          ease: "power4.in",
-          onComplete: () => {
-            projectContent.style.display = "none";
-          }
-        })
+        .to(
+          projectContent,
+          {
+            opacity: "0",
+            duration: 0.6,
+            ease: "power2.inOut"
+          },
+          0
+        )
+        .to(
+          projectContainer3,
+          {
+            transform: "translateY(0)",
+            duration: 0.6,
+            ease: "power2.inOut",
+            onComplete: () => {
+              projectContainer3.style.display = "none";
+            }
+          },
+          0.2
+        )
+        .to(
+          projectContainer3,
+          {
+            borderRadius: "50% 50% 0% 0% / 100% 100% 0% 0%",
+            duration: 0.6,
+            ease: "power2.inOut"
+          },
+          0
+        )
+        .to(
+          projectContainer2,
+          {
+            transform: "translateY(0)",
+            duration: 0.6,
+            ease: "power2.inOut",
+            onComplete: () => {
+              projectContainer2.style.display = "none";
+            }
+          },
+          0.25
+        )
+        .to(
+          projectContainer2,
+          {
+            borderRadius: "50% 50% 0% 0% / 100% 100% 0% 0%",
+            duration: 0.6,
+            ease: "power2.inOut"
+          },
+          0.05
+        )
+        .to(
+          projectContainer,
+          {
+            transform: "translateY(0)",
+            duration: 0.6,
+            ease: "power2.inOut",
+            onComplete: () => {
+              projectContainer.style.display = "none";
+            }
+          },
+          0.3
+        )
+        .to(
+          projectContainer,
+          {
+            borderRadius: "50% 50% 0% 0% / 100% 100% 0% 0%",
+            duration: 0.6,
+            ease: "power2.inOut"
+          },
+          0.1
+        )
         .to(
           selectedProjectGroup.position,
           {
-            y: "-=1",
+            y: "-=" + SIZES.height / (SIZES.height - 35),
             duration: 0.6,
-            ease: "power4.in",
+            ease: "power2.inOut",
             onUpdate: () => {
               selectedProjectGroup.updateMatrix();
             },
@@ -374,7 +514,7 @@ class SceneManager {
               prevComplete = true;
             }
           },
-          0
+          0.2
         )
         .to(
           selectedProjectGroup.scale,
@@ -383,12 +523,12 @@ class SceneManager {
             y: 1,
             z: 1,
             duration: 0.6,
-            ease: "power4.in",
+            ease: "power2.inOut",
             onUpdate: () => {
               selectedProjectGroup.updateMatrix();
             }
           },
-          0
+          0.2
         );
     }
   }
