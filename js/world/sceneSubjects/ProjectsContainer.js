@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { Text } from "troika-three-text";
 
 import * as Settings from "../../constants.js";
 import Project from "./Project.js";
@@ -10,6 +11,9 @@ class ProjectsContainer {
     this.container = new THREE.Object3D();
     this.container.matrixAutoUpdate = false;
 
+    this.endText = this.createEndText();
+    this.endText.visible = false;
+
     this.setProjectsContainer(scene, camera);
   }
 
@@ -18,8 +22,6 @@ class ProjectsContainer {
     let helixVector = Settings.getHelixCoordinatesBy(0);
     const cameraDistanceToThumbnail = 4.712; // TODO calculate project.z - camera.z
     //let cameraDistanceToThumbnail = camera.position.distanceTo(helixVector);
-
-    console.log("cameraDistanceToThumbnail ", cameraDistanceToThumbnail);
 
     for (let i = 0; i < Settings.PROJECTS.length; i++) {
       counter = i * Settings.PROJECT_DISTANCE_BETWEEN - Settings.PROJECT_OFFSET;
@@ -84,10 +86,36 @@ class ProjectsContainer {
 
       this.projects.push(project);
       this.container.add(project.container);
-      //this.container.add(mesh);
+
+      if (i === Settings.PROJECTS.length - 1) {
+        project.container.add(this.endText);
+        // this.endText.position.copy(project.container.position);
+        // this.endText.position.y -= 0.1;
+
+        // this.container.add(this.endText);
+      }
     }
 
     scene.add(this.container);
+  }
+
+  createEndText() {
+    const endText = new Text();
+
+    endText.text = "Swipe again to go to beginning";
+    endText.font = "../../../fonts/VectoraLTStd-Bold.woff";
+    endText.fontSize = 0.08;
+    endText.color = "#ffffff";
+    endText.maxWidth = 2;
+    endText.anchorX = 0.55;
+    endText.anchorY = -0.2;
+    endText.letterSpacing = 0;
+    endText.lineHeight = 1;
+    endText.depthOffset = -1;
+
+    endText.sync();
+
+    return endText;
   }
 
   update() {

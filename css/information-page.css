@@ -24,12 +24,13 @@ canvas {
   background: none;
   padding: 0;
   box-sizing: border-box;
-  transition: 0.5s;
+  /* transition: 0.6s; */
   background: linear-gradient(0deg, white 0 50%, transparent 50% 100%);
+  margin-top: 100vh;
 }
 
 .project-container--hidden {
-  margin-top: 100vh;
+  /* margin-top: 100vh; */
 }
 
 .project-content {

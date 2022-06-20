@@ -62,11 +62,15 @@ function pointerMoveCanvas(event) {
 }
 
 function openProject(event) {
-  const selectedProjectGroup = sceneManager.openProject(event);
+  const selectedProjectGroup = sceneManager.openProject(
+    event,
+    projectContainer
+  );
 
   // show button and project page
   if (selectedProjectGroup !== null) {
-    projectContainer.classList.remove("project-container--hidden");
+    //projectContainer.classList.remove("project-container--hidden");
+    //projectContainer.style.marginTop = 0;
     closeButton.classList.remove("close-button--hidden");
     openedProject = selectedProjectGroup;
   }
@@ -81,11 +85,12 @@ function closeProject() {
   });
 
   // hide button and project page
-  projectContainer.classList.add("project-container--hidden");
+  //projectContainer.classList.add("project-container--hidden");
+  //projectContainer.style.marginTop = "100vh";
   closeButton.classList.add("close-button--hidden");
 
   // close project in THREEjs
-  sceneManager.closeProject(openedProject);
+  sceneManager.closeProject(projectContainer);
   openedProject = null;
 }
 

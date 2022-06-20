@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module.js";
+import { Text } from "troika-three-text";
 import { gsap } from "gsap";
 
 import * as Settings from "./constants.js";
@@ -14,6 +14,7 @@ const stats = Stats();
 let prevComplete = true;
 let isForward = false;
 let isSwiping = false;
+let goToBeginning = false;
 
 const tunnelMoveProperties = {
   cameraStep: 0,
@@ -53,30 +54,27 @@ class SceneManager {
   }
 
   printValues() {
-    console.clear();
-
-    console.log("CAMERA POSITION ", this.camera.position);
-    console.log("CAMERA ROTATION ", this.camera.rotation);
-
-    console.log(
-      "PROJECT CONTAINER POSITION ",
-      this.projectsContainer.projects[this.currentProjectIndex].container
-        .position
-    );
-    console.log(
-      "PROJECT CONTAINER ROTATION ",
-      this.projectsContainer.projects[this.currentProjectIndex].container
-        .rotation
-    );
-
-    console.log(
-      "PROJECT MESH POSITION ",
-      this.projectsContainer.projects[this.currentProjectIndex].mesh.position
-    );
-    console.log(
-      "PROJECT MESH ROTATION ",
-      this.projectsContainer.projects[this.currentProjectIndex].mesh.rotation
-    );
+    // console.clear();
+    // console.log("CAMERA POSITION ", this.camera.position);
+    // console.log("CAMERA ROTATION ", this.camera.rotation);
+    // console.log(
+    //   "PROJECT CONTAINER POSITION ",
+    //   this.projectsContainer.projects[this.currentProjectIndex].container
+    //     .position
+    // );
+    // console.log(
+    //   "PROJECT CONTAINER ROTATION ",
+    //   this.projectsContainer.projects[this.currentProjectIndex].container
+    //     .rotation
+    // );
+    // console.log(
+    //   "PROJECT MESH POSITION ",
+    //   this.projectsContainer.projects[this.currentProjectIndex].mesh.position
+    // );
+    // console.log(
+    //   "PROJECT MESH ROTATION ",
+    //   this.projectsContainer.projects[this.currentProjectIndex].mesh.rotation
+    // );
   }
 
   buildScene() {
@@ -215,7 +213,6 @@ class SceneManager {
       Settings.SCREEN_SIZES.height
     );
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    //this.cameraControls.update();
   }
 
   // for mouse scroll
@@ -230,7 +227,7 @@ class SceneManager {
         isForward = false;
       }
 
-      this.goToNextProject();
+      this.moveCameraAfterSwipe();
     }
   }
 
@@ -249,88 +246,39 @@ class SceneManager {
           isForward = false;
         }
 
-        this.goToNextProject();
+        this.moveCameraAfterSwipe();
       }
     }
   }
 
-  goToNextProject() {
+  moveCameraAfterSwipe() {
     isSwiping = true;
 
-    // if first project is in view, block the camera from going backward
-    // OR
-    // if last project is in view, block the camera from going forward
-    if (
-      (!isForward && tunnelMoveProperties.cameraStep <= 0) ||
-      (isForward &&
-        tunnelMoveProperties.cameraStep >= Settings.PROJECTS.length - 1)
-    ) {
-      gsap
-        .timeline()
-        .to(tunnelMoveProperties, {
-          cameraStep: isForward ? "+=0.05" : "-=0.05",
-          projectThumbnailBend: 0.85,
-          projectTitleZ: isForward ? 0.2 : -0.2,
-          duration: 1,
-          ease: "power4.in"
-        })
-        .to(tunnelMoveProperties, {
-          cameraStep: isForward ? "-=0.05" : "+=0.05",
-          duration: 1,
-          ease: "elastic.out(1,0.6)",
-          onComplete: () => {
-            prevComplete = true;
-            isSwiping = false;
-          }
-        })
-        .to(
-          tunnelMoveProperties,
-          {
-            projectThumbnailBend: 0,
-            projectTitleZ: 0,
-            duration: 2,
-            ease: "elastic.out(1,0.3)"
-          },
-          1.2
-        );
+    const isGoingBeforeFirstProject =
+      !isForward && tunnelMoveProperties.cameraStep <= 0;
+    const isGoingAfterLastProject =
+      isForward &&
+      tunnelMoveProperties.cameraStep >= Settings.PROJECTS.length - 1;
+
+    if (isGoingBeforeFirstProject) {
+      // block camera if going before first project
+      this.animateBlockCamera();
+    } else if (isGoingAfterLastProject) {
+      if (goToBeginning) {
+        // go to beginning if swiped for the second time when on last project
+        this.animateGoToBeginning();
+      } else {
+        // block camera if going after last project
+        this.animateBlockCamera();
+      }
     } else {
-      gsap
-        .timeline()
-        .to(tunnelMoveProperties, {
-          cameraStep: isForward ? "+=0.5" : "-=0.5",
-          projectThumbnailBend: 0.85,
-          projectTitleZ: isForward ? 0.3 : -0.3,
-          duration: 1,
-          ease: "power4.in"
-        })
-        .to(tunnelMoveProperties, {
-          cameraStep: isForward ? "+=0.5" : "-=0.5",
-          duration: 1,
-          ease: "elastic.out(1,0.6)",
-          onComplete: () => {
-            prevComplete = true;
-            isForward ? this.currentProjectIndex++ : this.currentProjectIndex--;
-            this.printValues();
-            isSwiping = false;
-          }
-        })
-        .to(
-          tunnelMoveProperties,
-          {
-            projectThumbnailBend: 0,
-            projectTitleZ: 0,
-            duration: 2,
-            ease: "elastic.out(1,0.3)"
-          },
-          1.2
-        );
+      this.animateGoToProject();
     }
   }
 
   getSelectedProjectGroup(event) {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    //console.log(pointer);
 
     let selectedObject;
     const raycaster = new THREE.Raycaster();
@@ -352,8 +300,7 @@ class SceneManager {
     return null;
   }
 
-  // TODO animate project content with gsap instead of css
-  openProject(event) {
+  openProject(event, projectContainerElement) {
     if (prevComplete) {
       const selectedProjectGroup = this.getSelectedProjectGroup(event);
       const currentProjectThumbnail = this.projectsContainer.projects[
@@ -361,38 +308,10 @@ class SceneManager {
       ].mesh;
 
       if (selectedProjectGroup) {
-        gsap
-          .timeline()
-          .to(
-            currentProjectThumbnail.position,
-            {
-              //TODO investigate proper y so that the thumbnail is always at the top edge of the screen
-              y: "+=1.135",
-              duration: 0.6,
-              ease: "power2.inOut",
-              onUpdate: () => {
-                currentProjectThumbnail.updateMatrix();
-              },
-              onComplete: () => {
-                prevComplete = false;
-              }
-            },
-            0
-          )
-          .to(
-            currentProjectThumbnail.scale,
-            {
-              x: 1,
-              y: 1,
-              z: 1,
-              duration: 0.6,
-              ease: "power2.inOut",
-              onUpdate: () => {
-                currentProjectThumbnail.updateMatrix();
-              }
-            },
-            0
-          );
+        this.animateOpenProject(
+          currentProjectThumbnail,
+          projectContainerElement
+        );
       }
 
       return selectedProjectGroup;
@@ -401,44 +320,223 @@ class SceneManager {
     return null;
   }
 
-  closeProject() {
+  closeProject(projectContainerElement) {
     if (!prevComplete) {
       const currentProjectThumbnail = this.projectsContainer.projects[
         this.currentProjectIndex
       ].mesh;
 
-      gsap
-        .timeline()
-        .to(
-          currentProjectThumbnail.position,
-          {
-            y: "-=1.135",
-            duration: 0.6,
-            ease: "power2.inOut",
-            onUpdate: () => {
-              currentProjectThumbnail.updateMatrix();
-            },
-            onComplete: () => {
-              prevComplete = true;
-            }
-          },
-          0
-        )
-        .to(
-          currentProjectThumbnail.scale,
-          {
-            x: 0.8,
-            y: 0.8,
-            z: 0.8,
-            duration: 0.6,
-            ease: "power2.inOut",
-            onUpdate: () => {
-              currentProjectThumbnail.updateMatrix();
-            }
-          },
-          0
-        );
+      this.animateCloseProject(
+        currentProjectThumbnail,
+        projectContainerElement
+      );
     }
+  }
+
+  /* ---------- */
+  /* ANIMATIONS */
+  /* ---------- */
+
+  animateGoToBeginning() {
+    gsap
+      .timeline()
+      .to(tunnelMoveProperties, {
+        cameraStep: isForward ? "+=0.05" : "-=0.05",
+        projectThumbnailBend: 0.85,
+        projectTitleZ: isForward ? 0.2 : -0.2,
+        duration: 1.5,
+        ease: "power4.in"
+      })
+      .to(tunnelMoveProperties, {
+        cameraStep: 0,
+        duration: 2,
+        ease: "elastic.out(1,0.6)",
+
+        onComplete: () => {
+          prevComplete = true;
+          isSwiping = false;
+          goToBeginning = false;
+          this.currentProjectIndex = 0;
+          this.projectsContainer.endText.visible = false;
+        }
+      })
+      .to(
+        tunnelMoveProperties,
+        {
+          projectThumbnailBend: 0,
+          projectTitleZ: 0,
+          duration: 2,
+          ease: "elastic.out(1,0.3)"
+        },
+        1.7
+      );
+  }
+
+  animateBlockCamera() {
+    gsap
+      .timeline()
+      .to(tunnelMoveProperties, {
+        cameraStep: isForward ? "+=0.05" : "-=0.05",
+        projectThumbnailBend: 0.85,
+        projectTitleZ: isForward ? 0.2 : -0.2,
+        duration: 1,
+        ease: "power4.in"
+      })
+      .to(tunnelMoveProperties, {
+        cameraStep: isForward ? "-=0.05" : "+=0.05",
+        duration: 1,
+        ease: "elastic.out(1,0.6)",
+
+        onComplete: () => {
+          prevComplete = true;
+          isSwiping = false;
+
+          // if swiped forward when on last project
+          // show "go to beginning" message
+          // and make the next swipe move the camera to the beginning
+          this.projectsContainer.endText.visible = isForward;
+          goToBeginning = isForward;
+        }
+      })
+      .to(
+        tunnelMoveProperties,
+        {
+          projectThumbnailBend: 0,
+          projectTitleZ: 0,
+          duration: 2,
+          ease: "elastic.out(1,0.3)"
+        },
+        1.2
+      );
+  }
+
+  animateGoToProject() {
+    gsap
+      .timeline()
+      .to(tunnelMoveProperties, {
+        cameraStep: isForward ? "+=0.5" : "-=0.5",
+        projectThumbnailBend: 0.85,
+        projectTitleZ: isForward ? 0.3 : -0.3,
+        duration: 1,
+        ease: "power4.in"
+      })
+      .to(tunnelMoveProperties, {
+        cameraStep: isForward ? "+=0.5" : "-=0.5",
+        duration: 1,
+        ease: "elastic.out(1,0.6)",
+        onStart: () => {
+          // if swiped backward when on last project
+          // hide "go to beginning" message
+          // and reset the extra swipe needed to show it again
+          if (!isForward) {
+            this.projectsContainer.endText.visible = false;
+            goToBeginning = false;
+          }
+        },
+        onComplete: () => {
+          prevComplete = true;
+          isForward ? this.currentProjectIndex++ : this.currentProjectIndex--;
+          this.printValues();
+          isSwiping = false;
+        }
+      })
+      .to(
+        tunnelMoveProperties,
+        {
+          projectThumbnailBend: 0,
+          projectTitleZ: 0,
+          duration: 2,
+          ease: "elastic.out(1,0.3)"
+        },
+        1.2
+      );
+  }
+
+  animateOpenProject(currentProjectThumbnail, projectContainerElement) {
+    gsap
+      .timeline()
+      .to(
+        currentProjectThumbnail.position,
+        {
+          //TODO investigate proper y so that the thumbnail is always at the top edge of the screen
+          y: "+=1.135",
+          duration: 0.6,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            currentProjectThumbnail.updateMatrix();
+          },
+          onComplete: () => {
+            prevComplete = false;
+          }
+        },
+        0
+      )
+      .to(
+        currentProjectThumbnail.scale,
+        {
+          x: 1,
+          y: 1,
+          z: 1,
+          duration: 0.6,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            currentProjectThumbnail.updateMatrix();
+          }
+        },
+        0
+      )
+      .to(
+        projectContainerElement,
+        {
+          marginTop: 0,
+          duration: 0.55,
+          ease: "power2.inOut"
+        },
+        0
+      );
+  }
+
+  animateCloseProject(currentProjectThumbnail, projectContainerElement) {
+    gsap
+      .timeline()
+      .to(
+        currentProjectThumbnail.position,
+        {
+          y: "-=1.135",
+          duration: 0.6,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            currentProjectThumbnail.updateMatrix();
+          },
+          onComplete: () => {
+            prevComplete = true;
+          }
+        },
+        0
+      )
+      .to(
+        currentProjectThumbnail.scale,
+        {
+          x: 0.8,
+          y: 0.8,
+          z: 0.8,
+          duration: 0.6,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            currentProjectThumbnail.updateMatrix();
+          }
+        },
+        0
+      )
+      .to(
+        projectContainerElement,
+        {
+          marginTop: "100vh",
+          duration: 0.8,
+          ease: "power2.inOut"
+        },
+        0
+      );
   }
 }
 
