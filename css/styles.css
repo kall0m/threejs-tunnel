@@ -16,22 +16,42 @@
   padding: 0;
 }
 
-html {
-  background: #000000;
-}
-
+html,
 body {
-  position: fixed;
-  top: 0;
-  left: 0;
+  background: #000000;
   font-family: "Vectora LT Std", sans-serif;
-  width: 100%;
+  width: 100vw;
+  height: 100%;
+  position: fixed;
+  overflow: hidden;
 }
 
-button {
+button,
+input[type="submit"],
+input[type="reset"] {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
   cursor: pointer;
+  outline: inherit;
 }
 
+.st0 {
+  fill: none;
+  stroke: black;
+  stroke-miterlimit: 10;
+  enable-background: new;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+/* 
 #projectContainer,
 #projectContainer2,
 #projectContainer3 {
@@ -42,16 +62,19 @@ button {
   top: 100%;
   left: 0;
   color: black;
+  /* color: white;
   padding: 10vw;
   border-radius: 50% 50% 0% 0% / 100% 100% 0% 0%;
 }
 
 #projectContainer,
 #projectContainer3 {
+  /* background: #999355;
   background: white;
 }
 
 #projectContainer2 {
+  /* background: #f6f0d2;
   background: black;
 }
 
@@ -85,44 +108,4 @@ button {
 
 #closeButton span svg path {
   stroke: white;
-}
-
-.st0 {
-  fill: none;
-  stroke: #ffffff;
-  stroke-miterlimit: 10;
-  enable-background: new;
-}
-
-#app::before {
-  content: "";
-  bottom: 2.5em;
-  height: 1.5em;
-  width: 1.5px;
-  background: white;
-}
-
-#app::after {
-  content: "Scroll";
-  position: fixed;
-  bottom: 0;
-  width: 6em;
-  text-align: center;
-  margin: 0 0 1.5em -3em;
-  font-size: 0.8em;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-indent: 2px;
-  color: white;
-}
-
-#app::before,
-#app::after {
-  position: fixed;
-  left: 50%;
-}
-*,
-*::after,
-*::before {
-  box-sizing: border-box;
-}
+} */

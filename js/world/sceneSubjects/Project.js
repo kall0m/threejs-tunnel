@@ -7,7 +7,7 @@ import Bender from "../../bender.js";
 const bender = new Bender();
 
 class Project {
-  constructor(title, img) {
+  constructor(title, img, width, height) {
     this.title = title;
     this.img = img;
 
@@ -17,24 +17,24 @@ class Project {
     this.container = new THREE.Group();
     this.container.matrixAutoUpdate = false;
 
-    this.setProject();
+    this.setProject(width, height);
   }
 
-  setProject() {
-    this.setMesh();
+  setProject(width, height) {
+    this.setMesh(width, height);
     this.setTitle();
   }
 
-  setMesh() {
+  setMesh(width, height) {
     const loader = new THREE.TextureLoader();
     const texture = loader.load(this.img);
 
-    const geometry = this.createGeometry();
+    const geometry = this.createGeometry(width, height);
 
     const mesh = new THREE.Mesh(
       geometry,
       new THREE.MeshBasicMaterial({
-        map: texture
+        map: this.img !== "" ? texture : ""
         //side: THREE.BackSide
       })
     );
@@ -45,10 +45,10 @@ class Project {
   }
 
   // https://threejs.org/examples/webgl_morphtargets.html
-  createGeometry() {
-    const geometry = new THREE.PlaneBufferGeometry(16 / 16, 9 / 16, 16, 16);
-    const geometry1 = new THREE.PlaneBufferGeometry(16 / 16, 9 / 16, 16, 16);
-    const geometry2 = new THREE.PlaneBufferGeometry(16 / 16, 9 / 16, 16, 16);
+  createGeometry(width, height) {
+    const geometry = new THREE.PlaneBufferGeometry(width, height, 16, 16);
+    const geometry1 = new THREE.PlaneBufferGeometry(width, height, 16, 16);
+    const geometry2 = new THREE.PlaneBufferGeometry(width, height, 16, 16);
 
     bender.bend(geometry1, "y", -Settings.PROJECT_BEND_POWER);
     bender.bend(geometry2, "y", Settings.PROJECT_BEND_POWER);
@@ -105,7 +105,7 @@ class Project {
     title.color = "#ffffff";
     title.maxWidth = 0.75;
     title.anchorX = 0;
-    title.anchorY = 0.4;
+    title.anchorY = 0.5;
     title.letterSpacing = 0;
     title.lineHeight = 1;
     title.depthOffset = -1;
@@ -117,17 +117,7 @@ class Project {
     this.container.add(title);
   }
 
-  update() {
-    // gsap.to(this.title.position, {
-    //   duration: "1",
-    //   ease: "power2.inOut",
-    //   yoyoEase: "power2.inOut",
-    //   repeat: -1,
-    //   x: "+=random(-0.2,0.2)",
-    //   y: "+=random(-0.2,0.2)",
-    //   z: "+=random(-0.2,0.2)"
-    // });
-  }
+  update() {}
 
   bendThumbnail(state, value) {
     this.mesh.morphTargetInfluences[state] = value;

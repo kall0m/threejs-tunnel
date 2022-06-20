@@ -7,20 +7,22 @@ import * as Settings from "./constants.js";
 import Tunnel from "./world/sceneSubjects/Tunnel.js";
 import ProjectsContainer from "./world/sceneSubjects/ProjectsContainer.js";
 
-const SIZES = {
-  width: window.innerWidth,
-  height: window.innerHeight
-};
-
 const pointer = new THREE.Vector2();
 
 const stats = Stats();
 
 let prevComplete = true;
 let isForward = false;
+let isSwiping = false;
 
-let tunnelMoveProperties = {
+const tunnelMoveProperties = {
   cameraStep: 0,
+  cameraPositionOffsetX: 0.175, //TODO investigate if calculation is possible
+  cameraPositionOffsetY: 0,
+  cameraPositionOffsetZ: 0,
+  cameraRotationOffsetX: 0,
+  cameraRotationOffsetY: 0,
+  cameraRotationOffsetZ: 0,
   projectThumbnailBend: 0,
   projectTitleZ: 0
 };
@@ -30,6 +32,14 @@ class SceneManager {
     this.scene = this.buildScene();
     this.renderer = this.buildRenderer(canvas);
     this.camera = this.buildCamera();
+    // this.cameraControls = new OrbitControls(
+    //   this.camera,
+    //   this.renderer.domElement
+    // );
+    // this.cameraControls.enabled = false;
+
+    //DEBUG;
+    this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
 
     this.projectsContainer = [];
     this.currentProjectIndex = 0;
@@ -39,17 +49,34 @@ class SceneManager {
 
     this.sceneSubjects = this.createSceneSubjects();
 
-    this.camAnim = null;
+    this.printValues();
+  }
 
-    // this.camAnim = gsap.to(this.camera.position, {
-    //   duration: "1",
-    //   ease: "power2.inOut",
-    //   yoyoEase: "power2.inOut",
-    //   repeat: -1,
-    //   x: "+=random(-0.05,0.05)",
-    //   y: "+=random(-0.05,0.05)",
-    //   z: "+=random(-0.05,0.05)"
-    // });
+  printValues() {
+    console.clear();
+
+    console.log("CAMERA POSITION ", this.camera.position);
+    console.log("CAMERA ROTATION ", this.camera.rotation);
+
+    console.log(
+      "PROJECT CONTAINER POSITION ",
+      this.projectsContainer.projects[this.currentProjectIndex].container
+        .position
+    );
+    console.log(
+      "PROJECT CONTAINER ROTATION ",
+      this.projectsContainer.projects[this.currentProjectIndex].container
+        .rotation
+    );
+
+    console.log(
+      "PROJECT MESH POSITION ",
+      this.projectsContainer.projects[this.currentProjectIndex].mesh.position
+    );
+    console.log(
+      "PROJECT MESH ROTATION ",
+      this.projectsContainer.projects[this.currentProjectIndex].mesh.rotation
+    );
   }
 
   buildScene() {
@@ -64,7 +91,7 @@ class SceneManager {
       alpha: true
     });
 
-    renderer.setSize(SIZES.width, SIZES.height);
+    renderer.setSize(Settings.SCREEN_SIZES.width, Settings.SCREEN_SIZES.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     document.body.appendChild(stats.dom);
@@ -75,8 +102,9 @@ class SceneManager {
   buildCamera() {
     // Base camera
     const fieldOfView = Settings.CAMERA_FOV;
-    const aspectRatio = SIZES.width / SIZES.height;
-    const nearPlane = 0.1;
+    const aspectRatio =
+      Settings.SCREEN_SIZES.width / Settings.SCREEN_SIZES.height;
+    const nearPlane = 1;
     const farPlane = 1000;
 
     const camera = new THREE.PerspectiveCamera(
@@ -86,17 +114,13 @@ class SceneManager {
       farPlane
     );
 
-    const controls = new OrbitControls(camera, this.renderer.domElement);
-    controls.update();
-    controls.enabled = false;
-
     return camera;
   }
 
   createSceneSubjects() {
     this.tunnel = new Tunnel(this.scene);
 
-    this.projectsContainer = new ProjectsContainer(this.scene);
+    this.projectsContainer = new ProjectsContainer(this.scene, this.camera);
 
     // add new SceneSubjects to the scene
     const sceneSubjects = [this.tunnel, this.projectsContainer];
@@ -109,11 +133,16 @@ class SceneManager {
       this.sceneSubjects[i].update();
     }
 
-    this.makeWobble();
+    if (isSwiping) {
+      this.makeWobble();
+      console.log("animating");
+    }
 
     this.renderer.render(this.scene, this.camera);
 
     stats.update();
+
+    //tunnelMoveProperties.cameraStep += 0.05;
   }
 
   makeWobble() {
@@ -132,20 +161,34 @@ class SceneManager {
   updateCameraCoordinates(i) {
     const counter =
       i * Settings.PROJECT_DISTANCE_BETWEEN -
-      Settings.CAMERA_OFFSET +
-      Settings.PROJECT_OFFSET;
+      Settings.PROJECT_OFFSET -
+      Settings.CAMERA_OFFSET;
 
     const helixVector = Settings.getHelixCoordinatesBy(counter);
 
     this.camera.position.set(
-      helixVector.x + Settings.HEIGHT_STEP + 0.1,
+      helixVector.x +
+        Settings.HEIGHT_STEP +
+        tunnelMoveProperties.cameraPositionOffsetX,
       helixVector.y,
       helixVector.z
     );
 
-    this.camera.rotation.x = Settings.ANGLE_STEP * counter - 0.08;
-    this.camera.rotation.y = -0.016;
-    this.camera.rotation.z = 0.0;
+    // PRINTING THE DISTANCE BETWEEN THE CAMERA AND THE CENTER OF THE PROJECT
+    // console.log(
+    //   "dist ",
+    //   this.projectsContainer.projects[this.currentProjectIndex].container
+    //     .position.z - this.camera.position.z
+    // );
+
+    this.camera.rotation.x =
+      Settings.ANGLE_STEP * counter +
+      tunnelMoveProperties.cameraRotationOffsetX;
+    this.camera.rotation.y = tunnelMoveProperties.cameraRotationOffsetY;
+    this.camera.rotation.z = tunnelMoveProperties.cameraRotationOffsetZ;
+
+    // this.camera.position.set(0, 0, 10);
+    // this.cameraControls.update();
   }
 
   bendProjectThumbnails(state, morph) {
@@ -158,16 +201,21 @@ class SceneManager {
 
   onWindowResize() {
     // update sizes when a resize event occurs
-    SIZES.width = window.innerWidth;
-    SIZES.height = window.innerHeight;
+    Settings.SCREEN_SIZES.width = window.innerWidth;
+    Settings.SCREEN_SIZES.height = window.innerHeight;
 
     // update camera
-    this.camera.aspect = SIZES.width / SIZES.height;
+    this.camera.aspect =
+      Settings.SCREEN_SIZES.width / Settings.SCREEN_SIZES.height;
     this.camera.updateProjectionMatrix();
 
     // update renderer
-    this.renderer.setSize(SIZES.width, SIZES.height);
+    this.renderer.setSize(
+      Settings.SCREEN_SIZES.width,
+      Settings.SCREEN_SIZES.height
+    );
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    //this.cameraControls.update();
   }
 
   // for mouse scroll
@@ -207,7 +255,10 @@ class SceneManager {
   }
 
   goToNextProject() {
+    isSwiping = true;
+
     // if first project is in view, block the camera from going backward
+    // OR
     // if last project is in view, block the camera from going forward
     if (
       (!isForward && tunnelMoveProperties.cameraStep <= 0) ||
@@ -229,6 +280,7 @@ class SceneManager {
           ease: "elastic.out(1,0.6)",
           onComplete: () => {
             prevComplete = true;
+            isSwiping = false;
           }
         })
         .to(
@@ -258,6 +310,8 @@ class SceneManager {
           onComplete: () => {
             prevComplete = true;
             isForward ? this.currentProjectIndex++ : this.currentProjectIndex--;
+            this.printValues();
+            isSwiping = false;
           }
         })
         .to(
@@ -276,6 +330,7 @@ class SceneManager {
   getSelectedProjectGroup(event) {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    //console.log(pointer);
 
     let selectedObject;
     const raycaster = new THREE.Raycaster();
@@ -297,27 +352,26 @@ class SceneManager {
     return null;
   }
 
-  openProject(
-    event,
-    projectContainer,
-    projectContainer2,
-    projectContainer3,
-    projectContent
-  ) {
+  // TODO animate project content with gsap instead of css
+  openProject(event) {
     if (prevComplete) {
       const selectedProjectGroup = this.getSelectedProjectGroup(event);
+      const currentProjectThumbnail = this.projectsContainer.projects[
+        this.currentProjectIndex
+      ].mesh;
 
       if (selectedProjectGroup) {
         gsap
           .timeline()
           .to(
-            selectedProjectGroup.position,
+            currentProjectThumbnail.position,
             {
-              y: "+=" + SIZES.height / (SIZES.height - 35),
+              //TODO investigate proper y so that the thumbnail is always at the top edge of the screen
+              y: "+=1.135",
               duration: 0.6,
               ease: "power2.inOut",
               onUpdate: () => {
-                selectedProjectGroup.updateMatrix();
+                currentProjectThumbnail.updateMatrix();
               },
               onComplete: () => {
                 prevComplete = false;
@@ -326,88 +380,16 @@ class SceneManager {
             0
           )
           .to(
-            selectedProjectGroup.scale,
+            currentProjectThumbnail.scale,
             {
-              x: SIZES.height / (SIZES.height - 500),
-              y: SIZES.height / (SIZES.height - 500),
-              z: SIZES.height / (SIZES.height - 500),
+              x: 1,
+              y: 1,
+              z: 1,
               duration: 0.6,
               ease: "power2.inOut",
               onUpdate: () => {
-                selectedProjectGroup.updateMatrix();
+                currentProjectThumbnail.updateMatrix();
               }
-            },
-            0
-          )
-          .to(
-            projectContainer,
-            {
-              transform: "translateY(-50vh)",
-              duration: 0.6,
-              ease: "power2.inOut",
-              onStart: () => {
-                projectContainer.style.display = "block";
-              }
-            },
-            0
-          )
-          .to(
-            projectContainer,
-            {
-              borderRadius: "0",
-              duration: 0.6,
-              ease: "power2.inOut"
-            },
-            0.2
-          )
-          .to(
-            projectContainer2,
-            {
-              transform: "translateY(-50vh)",
-              duration: 0.6,
-              ease: "power2.inOut",
-              onStart: () => {
-                projectContainer2.style.display = "block";
-              }
-            },
-            0.05
-          )
-          .to(
-            projectContainer2,
-            {
-              borderRadius: "0",
-              duration: 0.6,
-              ease: "power2.inOut"
-            },
-            0.25
-          )
-          .to(
-            projectContainer3,
-            {
-              transform: "translateY(-50vh)",
-              duration: 0.6,
-              ease: "power2.inOut",
-              onStart: () => {
-                projectContainer3.style.display = "block";
-              }
-            },
-            0.1
-          )
-          .to(
-            projectContainer3,
-            {
-              borderRadius: "0",
-              duration: 0.6,
-              ease: "power2.inOut"
-            },
-            0.3
-          )
-          .to(
-            projectContent,
-            {
-              opacity: "1",
-              duration: 1.2,
-              ease: "power2.inOut"
             },
             0
           );
@@ -419,116 +401,42 @@ class SceneManager {
     return null;
   }
 
-  closeProject(
-    selectedProjectGroup,
-    projectContainer,
-    projectContainer2,
-    projectContainer3,
-    projectContent
-  ) {
-    if (selectedProjectGroup && !prevComplete) {
+  closeProject() {
+    if (!prevComplete) {
+      const currentProjectThumbnail = this.projectsContainer.projects[
+        this.currentProjectIndex
+      ].mesh;
+
       gsap
         .timeline()
         .to(
-          projectContent,
+          currentProjectThumbnail.position,
           {
-            opacity: "0",
-            duration: 0.6,
-            ease: "power2.inOut"
-          },
-          0
-        )
-        .to(
-          projectContainer3,
-          {
-            transform: "translateY(0)",
-            duration: 0.6,
-            ease: "power2.inOut",
-            onComplete: () => {
-              projectContainer3.style.display = "none";
-            }
-          },
-          0.2
-        )
-        .to(
-          projectContainer3,
-          {
-            borderRadius: "50% 50% 0% 0% / 100% 100% 0% 0%",
-            duration: 0.6,
-            ease: "power2.inOut"
-          },
-          0
-        )
-        .to(
-          projectContainer2,
-          {
-            transform: "translateY(0)",
-            duration: 0.6,
-            ease: "power2.inOut",
-            onComplete: () => {
-              projectContainer2.style.display = "none";
-            }
-          },
-          0.25
-        )
-        .to(
-          projectContainer2,
-          {
-            borderRadius: "50% 50% 0% 0% / 100% 100% 0% 0%",
-            duration: 0.6,
-            ease: "power2.inOut"
-          },
-          0.05
-        )
-        .to(
-          projectContainer,
-          {
-            transform: "translateY(0)",
-            duration: 0.6,
-            ease: "power2.inOut",
-            onComplete: () => {
-              projectContainer.style.display = "none";
-            }
-          },
-          0.3
-        )
-        .to(
-          projectContainer,
-          {
-            borderRadius: "50% 50% 0% 0% / 100% 100% 0% 0%",
-            duration: 0.6,
-            ease: "power2.inOut"
-          },
-          0.1
-        )
-        .to(
-          selectedProjectGroup.position,
-          {
-            y: "-=" + SIZES.height / (SIZES.height - 35),
+            y: "-=1.135",
             duration: 0.6,
             ease: "power2.inOut",
             onUpdate: () => {
-              selectedProjectGroup.updateMatrix();
+              currentProjectThumbnail.updateMatrix();
             },
             onComplete: () => {
               prevComplete = true;
             }
           },
-          0.2
+          0
         )
         .to(
-          selectedProjectGroup.scale,
+          currentProjectThumbnail.scale,
           {
-            x: 1,
-            y: 1,
-            z: 1,
+            x: 0.8,
+            y: 0.8,
+            z: 0.8,
             duration: 0.6,
             ease: "power2.inOut",
             onUpdate: () => {
-              selectedProjectGroup.updateMatrix();
+              currentProjectThumbnail.updateMatrix();
             }
           },
-          0.2
+          0
         );
     }
   }

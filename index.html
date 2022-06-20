@@ -1,58 +1,94 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+      user-scalable="no"
+    />
     <meta charset="UTF-8" />
-    <title>Parcel Sandbox</title>
+    <title>XR</title>
     <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/information-page.css" />
   </head>
 
   <body>
     <div id="app">
       <canvas class="webgl"></canvas>
-      <div id="projectContainer"></div>
-      <div id="projectContainer2"></div>
-      <div id="projectContainer3">
-        <div id="projectContent">
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
-          </p>
-          <br />
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          </p>
-          <br />
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
-          </p>
+      <div class="project-page">
+        <div
+          class="project-container project-container--hidden"
+          id="projectContainer"
+        >
+          <div class="project-content">
+            <div class="project-title">Connected Mine</div>
+            <div class="project-stats">
+              <div class="project-stats__client">Damen Shipyards</div>
+              <div class="project-stats__domain">Critical Infrastructure</div>
+              <div class="project-stats__year">2020</div>
+            </div>
+            <div class="project-description">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ullamco laboris
+              nisi ut aliquip ex ea commodo consequat. Ut enim ad minim veniam,
+              quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+              commodo consequat.
+            </div>
+            <div class="project-header">Available devices</div>
+            <div class="project-tabs">
+              <button class="project-tabs__tab project-tabs__tab--active">
+                Oculus Rift
+              </button>
+              <button class="project-tabs__tab">HTC Vive</button>
+            </div>
+
+            <div class="instruction-list">
+              <div class="instruction-item">
+                <div class="instruction-item__head">
+                  <span>1</span>Take VR glasses
+                </div>
+                <div class="instruction-item__body">
+                  You can find the Oculus in the drawer. Placed a sticker on it
+                  with a certain color so that you can find it.
+                  <img
+                    src="https://media.s-bol.com/rmnlxmY5P2Jp/1rV2qrG/1200x526.jpg"
+                  />
+                </div>
+              </div>
+              <div class="instruction-item">
+                <div class="instruction-item__head">
+                  <span>2</span>Connect USB
+                </div>
+                <div class="instruction-item__body">
+                  Plug the USB of the Oculus into the PC that is placed on the
+                  floor.
+                </div>
+              </div>
+              <div class="instruction-item">
+                <div class="instruction-item__head">
+                  <span>3</span>Start the PC
+                </div>
+                <div class="instruction-item__body">
+                  And open a certain type of software.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <button id="closeButton">
-      <span class="empty">
-        <svg
-          viewBox="0 0 14 14"
-          style="enable-background: new 0 0 14 14;"
-          xml:space="preserve"
-          title="close"
-        >
-          <path class="st0" d="M1,1l12,12"></path>
-          <path class="st0" d="M1,13L13,1"></path>
-        </svg>
-      </span>
+    <button id="closeButton" class="close-button close-button--hidden">
+      <svg
+        viewBox="0 0 14 14"
+        style="enable-background: new 0 0 14 14;"
+        xml:space="preserve"
+        title="close"
+      >
+        <path class="st0" d="M1,1l12,12"></path>
+        <path class="st0" d="M1,13L13,1"></path>
+      </svg>
     </button>
 
     <script src="js/main.js"></script>

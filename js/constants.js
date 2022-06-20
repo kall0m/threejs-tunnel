@@ -13,8 +13,8 @@ export const PROJECTS = [
     img: "https://i.imgur.com/EzLK14L.png"
   },
   {
-    title: "EV Box VR Simulation",
-    img: "https://i.imgur.com/Q5fi7iz.jpg"
+    title: "Gun Training in VR",
+    img: "https://miro.medium.com/max/1080/0*pQr2iF3MqOVjQHjI"
   },
   {
     title: "Hololens Surgery",
@@ -43,12 +43,36 @@ export const PROJECTS = [
       "https://www.gannett-cdn.com/-mm-/01b3f144eb141b8cf7f41fc13e2b94d422d4e858/c=61-0-1862-1018/local/-/media/IAGroup/DesMoines/2014/09/22/1411405133000-Day4Globe.jpg"
   }
 ];
+
+// SCREEN
+export const SCREEN_SIZES = {
+  width: window.innerWidth,
+  height: window.innerHeight
+};
+
+// CAMERA
+export const CAMERA_FOV = 30;
+//(Math.atan(9 / 16) / Math.PI) * 180
+export const CAMERA_FOV_RADIANS = CAMERA_FOV * (Math.PI / 180);
+export const CAMERA_OFFSET = 1.5;
+
+// MAGIC NUMBERS
+export const cameraDistanceToThumbnail = 4.712;
+
+// PROJECT
+// width and height must follow the 16:9 ratio
+export const PROJECT_WIDTH =
+  2 *
+  Math.tan(CAMERA_FOV_RADIANS / 2) *
+  (SCREEN_SIZES.width / SCREEN_SIZES.height) *
+  cameraDistanceToThumbnail;
+export const PROJECT_HEIGTH = (9 / 16) * PROJECT_WIDTH;
 export const PROJECT_DISTANCE_BETWEEN = 4;
-export const PROJECT_OFFSET = 0;
+export const PROJECT_OFFSET = 0.1;
 export const PROJECT_BEND_POWER = 1.2;
 export const PROJECT_BEND_STATE_FORWARD = 0;
 export const PROJECT_BEND_STATE_BACKWARD = 1;
-export const PROJECT_OFFSET_Y = 0.5;
+export const PROJECT_OFFSET_Y = 0.4;
 
 // TUNNEL
 export const RADIUS = 300;
@@ -64,10 +88,6 @@ export function getHelixCoordinatesBy(counter) {
 
   return { x, y, z };
 }
-
-// CAMERA
-export const CAMERA_FOV = 30;
-export const CAMERA_OFFSET = 1.5;
 
 // REGENERATE
 export const REGENERATION_NUMBER = 1;

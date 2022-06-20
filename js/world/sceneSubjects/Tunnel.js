@@ -24,6 +24,8 @@ class Tunnel {
 
   createMesh(counter) {
     const geometry = new THREE.TorusGeometry(1.4, 0.01, 16, 6);
+    // radius
+    // Settings.SCREEN_SIZES.width / Settings.SCREEN_SIZES.height - 0.1,
     const material = new THREE.MeshBasicMaterial({
       color: "#ffffff"
     });
