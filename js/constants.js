@@ -13,7 +13,7 @@ export const PROJECTS = [
     img: "https://i.imgur.com/EzLK14L.png"
   },
   {
-    title: "Gun Training in VR",
+    title: "VR Gun Training",
     img: "https://miro.medium.com/max/1080/0*pQr2iF3MqOVjQHjI"
   },
   {
@@ -73,6 +73,7 @@ export const PROJECT_BEND_POWER = 1.2;
 export const PROJECT_BEND_STATE_FORWARD = 0;
 export const PROJECT_BEND_STATE_BACKWARD = 1;
 export const PROJECT_OFFSET_Y = 0.4;
+export const PROJECT_SCALE = 0.8;
 
 // TUNNEL
 export const RADIUS = 300;

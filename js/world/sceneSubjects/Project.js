@@ -93,23 +93,29 @@ class Project {
     const title = new Text();
 
     title.text = this.title.toUpperCase();
+
     title.font = "../../../fonts/VectoraLTStd-Bold.woff";
-    title.textAlign = "right";
-    title.fontSize = 0.15;
     title.color = "#ffffff";
-    title.maxWidth = width * 0.1;
+    title.textAlign = "right";
+    title.fontSize = width * 0.1;
+
+    title.maxWidth = width * Settings.PROJECT_SCALE;
     title.anchorX = "right";
-    title.anchorY = height * 0.5;
-    title.letterSpacing = 0;
-    title.lineHeight = 1;
+    title.anchorY = "top-baseline";
+
     title.depthOffset = -1;
+
     title.outlineWidth = "10%";
-    title.strokeColor = new THREE.Color(0x000000);
+    title.outlineColor = new THREE.Color(0x000000);
 
     title.sync();
 
+    title.position.x += (width * Settings.PROJECT_SCALE) / 2;
+    title.position.y -=
+      (height * Settings.PROJECT_SCALE) / 1.3 + Settings.PROJECT_OFFSET_Y;
+    title.position.z -= 10;
+
     this.title = title;
-    title.position.y -= Settings.PROJECT_OFFSET_Y;
     this.container.add(title);
   }
 

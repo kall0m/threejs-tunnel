@@ -19,7 +19,9 @@ const closeButton = document.getElementById("closeButton");
 
 const aspectRatio = 56.25; // (9/16)*100
 
+console.clear();
 console.log("%c🌀 Inside the tunnel 🌀", "font-size: 16px");
+
 bindEventListeners();
 render();
 

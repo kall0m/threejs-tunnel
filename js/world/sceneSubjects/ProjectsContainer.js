@@ -77,9 +77,9 @@ class ProjectsContainer {
       project.mesh.updateMatrix();
       project.container.updateMatrix();
 
-      project.mesh.scale.x = 0.8;
-      project.mesh.scale.y = 0.8;
-      project.mesh.scale.z = 0.8;
+      project.mesh.scale.x = Settings.PROJECT_SCALE;
+      project.mesh.scale.y = Settings.PROJECT_SCALE;
+      project.mesh.scale.z = Settings.PROJECT_SCALE;
 
       this.projects.push(project);
       this.container.add(project.container);
