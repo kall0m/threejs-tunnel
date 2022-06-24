@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
-import { Text } from "troika-three-text";
+import { preloadFont } from "troika-three-text";
 import { gsap } from "gsap";
 
 import * as Settings from "./constants.js";
@@ -11,13 +11,12 @@ const pointer = new THREE.Vector2();
 
 const stats = Stats();
 
-let prevComplete = true;
+let prevComplete = false;
 let isForward = false;
 let isSwiping = false;
-let goToBeginning = false;
 
 const tunnelMoveProperties = {
-  cameraStep: 0,
+  cameraStep: -25,
   cameraPositionOffsetX: 0.175, //TODO investigate if calculation is possible
   cameraPositionOffsetY: 0,
   cameraPositionOffsetZ: 0,
@@ -30,56 +29,54 @@ const tunnelMoveProperties = {
 
 class SceneManager {
   constructor(canvas) {
-    this.scene = this.buildScene();
+    this.scene = new THREE.Scene();
     this.renderer = this.buildRenderer(canvas);
     this.camera = this.buildCamera();
-    // this.cameraControls = new OrbitControls(
-    //   this.camera,
-    //   this.renderer.domElement
-    // );
-    // this.cameraControls.enabled = false;
+    this.loadingManager = new THREE.LoadingManager();
 
-    //DEBUG;
-    this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
+    this.updateCameraCoordinates(0);
 
-    this.projectsContainer = [];
+    this.tunnel = new Tunnel(this.scene);
+    this.projectsContainer = new ProjectsContainer(this.scene, this.camera);
+
     this.currentProjectIndex = 0;
 
-    this.tunnel = new THREE.Object3D();
-    this.tunnel.matrixAutoUpdate = false;
+    this.preloadMaterials(this.loadingManager);
 
-    this.sceneSubjects = this.createSceneSubjects();
+    this.loadingManager.onLoad = () => {
+      preloadFont(
+        {
+          font: "/fonts/VectoraLTStd-Bold.woff"
+        },
+        () => {
+          const loadingScreen = document.getElementById("loading-screen");
+          loadingScreen.classList.add("fade-out");
 
-    this.printValues();
+          // optional: remove loader from DOM via event listener
+          loadingScreen.addEventListener("transitionend", (event) => {
+            event.target.remove();
+          });
+
+          this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
+          isSwiping = true;
+          this.animateCameraInitialState();
+        }
+      );
+    };
   }
 
-  printValues() {
-    // console.clear();
-    // console.log("CAMERA POSITION ", this.camera.position);
-    // console.log("CAMERA ROTATION ", this.camera.rotation);
-    // console.log(
-    //   "PROJECT CONTAINER POSITION ",
-    //   this.projectsContainer.projects[this.currentProjectIndex].container
-    //     .position
-    // );
-    // console.log(
-    //   "PROJECT CONTAINER ROTATION ",
-    //   this.projectsContainer.projects[this.currentProjectIndex].container
-    //     .rotation
-    // );
-    // console.log(
-    //   "PROJECT MESH POSITION ",
-    //   this.projectsContainer.projects[this.currentProjectIndex].mesh.position
-    // );
-    // console.log(
-    //   "PROJECT MESH ROTATION ",
-    //   this.projectsContainer.projects[this.currentProjectIndex].mesh.rotation
-    // );
-  }
+  preloadMaterials(loadingManager) {
+    const textureLoader = new THREE.TextureLoader(loadingManager);
 
-  buildScene() {
-    const scene = new THREE.Scene();
-    return scene;
+    for (let i = 0; i < Settings.PROJECTS.length; i++) {
+      textureLoader.load(Settings.PROJECTS[i].img, (texture) => {
+        const material = new THREE.MeshBasicMaterial({
+          map: texture
+        });
+
+        this.projectsContainer.projects[i].mesh.material = material;
+      });
+    }
   }
 
   buildRenderer(canvas) {
@@ -115,22 +112,7 @@ class SceneManager {
     return camera;
   }
 
-  createSceneSubjects() {
-    this.tunnel = new Tunnel(this.scene);
-
-    this.projectsContainer = new ProjectsContainer(this.scene, this.camera);
-
-    // add new SceneSubjects to the scene
-    const sceneSubjects = [this.tunnel, this.projectsContainer];
-
-    return sceneSubjects;
-  }
-
   update() {
-    for (let i = 0; i < this.sceneSubjects.length; i++) {
-      this.sceneSubjects[i].update();
-    }
-
     if (isSwiping) {
       this.makeWobble();
       console.log("animating");
@@ -139,8 +121,6 @@ class SceneManager {
     this.renderer.render(this.scene, this.camera);
 
     stats.update();
-
-    //tunnelMoveProperties.cameraStep += 0.05;
   }
 
   makeWobble() {
@@ -172,21 +152,11 @@ class SceneManager {
       helixVector.z
     );
 
-    // PRINTING THE DISTANCE BETWEEN THE CAMERA AND THE CENTER OF THE PROJECT
-    // console.log(
-    //   "dist ",
-    //   this.projectsContainer.projects[this.currentProjectIndex].container
-    //     .position.z - this.camera.position.z
-    // );
-
     this.camera.rotation.x =
       Settings.ANGLE_STEP * counter +
       tunnelMoveProperties.cameraRotationOffsetX;
     this.camera.rotation.y = tunnelMoveProperties.cameraRotationOffsetY;
     this.camera.rotation.z = tunnelMoveProperties.cameraRotationOffsetZ;
-
-    // this.camera.position.set(0, 0, 10);
-    // this.cameraControls.update();
   }
 
   bendProjectThumbnails(state, morph) {
@@ -264,13 +234,8 @@ class SceneManager {
       // block camera if going before first project
       this.animateBlockCamera();
     } else if (isGoingAfterLastProject) {
-      if (goToBeginning) {
-        // go to beginning if swiped for the second time when on last project
-        this.animateGoToBeginning();
-      } else {
-        // block camera if going after last project
-        this.animateBlockCamera();
-      }
+      // go to beginning if swiped when on last project
+      this.animateGoToBeginning();
     } else {
       this.animateGoToProject();
     }
@@ -337,6 +302,19 @@ class SceneManager {
   /* ANIMATIONS */
   /* ---------- */
 
+  animateCameraInitialState() {
+    gsap.timeline().to(tunnelMoveProperties, {
+      cameraStep: 0,
+      duration: 4,
+      ease: "power4.inOut",
+      onComplete: () => {
+        isSwiping = false;
+        prevComplete = true;
+        this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
+      }
+    });
+  }
+
   animateGoToBeginning() {
     gsap
       .timeline()
@@ -351,13 +329,10 @@ class SceneManager {
         cameraStep: 0,
         duration: 2,
         ease: "elastic.out(1,0.6)",
-
         onComplete: () => {
           prevComplete = true;
           isSwiping = false;
-          goToBeginning = false;
           this.currentProjectIndex = 0;
-          this.projectsContainer.endText.visible = false;
         }
       })
       .to(
@@ -390,12 +365,6 @@ class SceneManager {
         onComplete: () => {
           prevComplete = true;
           isSwiping = false;
-
-          // if swiped forward when on last project
-          // show "go to beginning" message
-          // and make the next swipe move the camera to the beginning
-          this.projectsContainer.endText.visible = isForward;
-          goToBeginning = isForward;
         }
       })
       .to(
@@ -424,19 +393,9 @@ class SceneManager {
         cameraStep: isForward ? "+=0.5" : "-=0.5",
         duration: 1,
         ease: "elastic.out(1,0.6)",
-        onStart: () => {
-          // if swiped backward when on last project
-          // hide "go to beginning" message
-          // and reset the extra swipe needed to show it again
-          if (!isForward) {
-            this.projectsContainer.endText.visible = false;
-            goToBeginning = false;
-          }
-        },
         onComplete: () => {
           prevComplete = true;
           isForward ? this.currentProjectIndex++ : this.currentProjectIndex--;
-          this.printValues();
           isSwiping = false;
         }
       })

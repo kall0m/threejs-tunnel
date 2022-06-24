@@ -7,41 +7,41 @@ export const PROJECTS = [
   {
     title: "AVEnueS",
     img: "https://i.imgur.com/KksqRGy.png"
+  },
+  {
+    title: "Damen Shipyards",
+    img: "https://i.imgur.com/EzLK14L.png"
+  },
+  {
+    title: "Gun Training in VR",
+    img: "https://miro.medium.com/max/1080/0*pQr2iF3MqOVjQHjI"
+  },
+  {
+    title: "Hololens Surgery",
+    img: "https://i.imgur.com/KULOaQM.png"
+  },
+  {
+    title: "Future Hyperloop Traveler",
+    img: "https://i.imgur.com/873lbha.png"
+  },
+  {
+    title: "VR Tetris",
+    img: "https://i.imgur.com/K8aqfNC.png"
+  },
+  {
+    title: "Mystical Well",
+    img: "https://miro.medium.com/max/1400/1*7rSJDJ-oA-HX4WCtjNbsIQ.png"
+  },
+  {
+    title: "Accenture One Space",
+    img:
+      "https://media-exp1.licdn.com/dms/image/C4E12AQGcZRe1WlhJZg/article-cover_image-shrink_600_2000/0/1632262281314?e=2147483647&v=beta&t=W1yykArfH4_bu0HWn68SYqVsqzLOVt8kT6fsuOhAAuU"
+  },
+  {
+    title: "Random VR Project",
+    img:
+      "https://www.gannett-cdn.com/-mm-/01b3f144eb141b8cf7f41fc13e2b94d422d4e858/c=61-0-1862-1018/local/-/media/IAGroup/DesMoines/2014/09/22/1411405133000-Day4Globe.jpg"
   }
-  // {
-  //   title: "Damen Shipyards",
-  //   img: "https://i.imgur.com/EzLK14L.png"
-  // },
-  // {
-  //   title: "Gun Training in VR",
-  //   img: "https://miro.medium.com/max/1080/0*pQr2iF3MqOVjQHjI"
-  // },
-  // {
-  //   title: "Hololens Surgery",
-  //   img: "https://i.imgur.com/KULOaQM.png"
-  // },
-  // {
-  //   title: "Future Hyperloop Traveler",
-  //   img: "https://i.imgur.com/873lbha.png"
-  // },
-  // {
-  //   title: "VR Tetris",
-  //   img: "https://i.imgur.com/K8aqfNC.png"
-  // },
-  // {
-  //   title: "Mystical Well",
-  //   img: "https://miro.medium.com/max/1400/1*7rSJDJ-oA-HX4WCtjNbsIQ.png"
-  // },
-  // {
-  //   title: "Accenture One Space",
-  //   img:
-  //     "https://media-exp1.licdn.com/dms/image/C4E12AQGcZRe1WlhJZg/article-cover_image-shrink_600_2000/0/1632262281314?e=2147483647&v=beta&t=W1yykArfH4_bu0HWn68SYqVsqzLOVt8kT6fsuOhAAuU"
-  // },
-  // {
-  //   title: "Random VR Project",
-  //   img:
-  //     "https://www.gannett-cdn.com/-mm-/01b3f144eb141b8cf7f41fc13e2b94d422d4e858/c=61-0-1862-1018/local/-/media/IAGroup/DesMoines/2014/09/22/1411405133000-Day4Globe.jpg"
-  // }
 ];
 
 // SCREEN

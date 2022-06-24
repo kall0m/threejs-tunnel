@@ -1,7 +1,11 @@
 import SceneManager from "./SceneManager.js";
+import Noise from "./Noise.js";
 
-const canvas = document.querySelector("canvas.webgl");
-const sceneManager = new SceneManager(canvas);
+const canvasThreejs = document.querySelector("canvas.threejs");
+const sceneManager = new SceneManager(canvasThreejs);
+
+const canvasNoise = document.querySelector("canvas.noise");
+const noise = new Noise(canvasNoise);
 
 let touchstartX = 0;
 let touchstartY = 0;
@@ -13,6 +17,9 @@ let openedProject = null;
 const projectContainer = document.getElementById("projectContainer");
 const closeButton = document.getElementById("closeButton");
 
+const aspectRatio = 56.25; // (9/16)*100
+
+console.log("%c🌀 Inside the tunnel 🌀", "font-size: 16px");
 bindEventListeners();
 render();
 
@@ -32,7 +39,16 @@ function bindEventListeners() {
 }
 
 function resizeCanvas() {
+  noise.onWindowResize();
   sceneManager.onWindowResize();
+
+  const val = window.innerHeight - (aspectRatio * window.innerWidth) / 100;
+  projectContainer.style.background =
+    "linear-gradient(0deg, black 0 " +
+    val +
+    "px, transparent " +
+    val +
+    "px 100%)";
 }
 
 function wheelCanvas(event) {
@@ -96,5 +112,6 @@ function closeProject() {
 
 function render() {
   requestAnimationFrame(render);
+  noise.generate();
   sceneManager.update();
 }

@@ -12,7 +12,7 @@ class Tunnel {
   }
 
   setTunnel(scene) {
-    for (let i = 0; i < Settings.TURNS * Settings.OBJ_PER_TURN; i++) {
+    for (let i = -50; i < Settings.TURNS * Settings.OBJ_PER_TURN; i++) {
       const mesh = this.createMesh(i);
 
       this.hexagons.push(mesh);
@@ -23,7 +23,7 @@ class Tunnel {
   }
 
   createMesh(counter) {
-    const geometry = new THREE.TorusGeometry(1.4, 0.01, 16, 6);
+    const geometry = new THREE.TorusGeometry(1.4, 0.01, 16, 128);
     const material = new THREE.MeshBasicMaterial({
       color: "#ffffff"
     });
@@ -58,8 +58,6 @@ class Tunnel {
     // } else {
     // }
   }
-
-  update() {}
 }
 
 export default Tunnel;

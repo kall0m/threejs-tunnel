@@ -2,6 +2,12 @@ canvas {
   position: fixed;
 }
 
+canvas.noise {
+  opacity: 0.1;
+  z-index: 3;
+  pointer-events: none;
+}
+
 #app {
   position: fixed;
   height: 100%;
@@ -25,7 +31,8 @@ canvas {
   padding: 0;
   box-sizing: border-box;
   /* transition: 0.6s; */
-  background: linear-gradient(0deg, white 0 50%, transparent 50% 100%);
+  background: linear-gradient(0deg, black 0 50%, transparent 50% 100%);
+  color: white;
   margin-top: 100vh;
 }
 
@@ -34,7 +41,7 @@ canvas {
 }
 
 .project-content {
-  background-color: white;
+  background-color: black;
   margin-top: 56.25vw;
   padding: 40px;
   box-sizing: border-box;
@@ -69,15 +76,17 @@ canvas {
 }
 
 .project-tabs__tab {
-  background-color: #f2f2f2;
+  /* background-color: #f2f2f2; */
+  background-color: #2c2c2c;
+  color: white;
   padding: 10px 15px;
   border-radius: 20px;
   margin-top: 10px;
 }
 
 .project-tabs__tab--active {
-  background-color: black;
-  color: white;
+  background-color: white;
+  color: black;
 }
 
 .instruction-top {
@@ -92,8 +101,8 @@ canvas {
 .instruction-item__head span {
   width: 20px;
   height: 20px;
-  color: white;
-  background-color: black;
+  color: black;
+  background-color: white;
   align-items: center;
   justify-content: center;
   display: inline-flex;

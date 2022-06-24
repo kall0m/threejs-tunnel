@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { Text } from "troika-three-text";
 
 import * as Settings from "../../constants.js";
 import Project from "./Project.js";
@@ -11,8 +10,8 @@ class ProjectsContainer {
     this.container = new THREE.Object3D();
     this.container.matrixAutoUpdate = false;
 
-    this.endText = this.createEndText();
-    this.endText.visible = false;
+    this.projectWidth = 0;
+    this.projectHeight = 0;
 
     this.setProjectsContainer(scene, camera);
   }
@@ -34,23 +33,21 @@ class ProjectsContainer {
         Math.tan(Settings.CAMERA_FOV_RADIANS / 2) *
         camera.aspect *
         cameraDistanceToThumbnail;
+      this.projectWidth = width;
+
       const height = (9 / 16) * width;
+      this.projectHeight = height;
 
-      const project = new Project(
-        Settings.PROJECTS[i].title,
-        Settings.PROJECTS[i].img,
-        width,
-        height
-      );
+      const project = new Project(Settings.PROJECTS[i].title, width, height);
 
-      var plane = new THREE.Plane().setFromNormalAndCoplanarPoint(
-        new THREE.Vector3(0, 0, 1),
-        new THREE.Vector3(0, 0, 1)
-      );
+      // var plane = new THREE.Plane().setFromNormalAndCoplanarPoint(
+      //   new THREE.Vector3(0, 0, 1),
+      //   new THREE.Vector3(0, 0, 1)
+      // );
 
-      var raycaster = new THREE.Raycaster();
-      var corner = new THREE.Vector2();
-      var cornerPoint = new THREE.Vector3();
+      // var raycaster = new THREE.Raycaster();
+      // var corner = new THREE.Vector2();
+      // var cornerPoint = new THREE.Vector3();
 
       project.container.position.set(
         helixVector.x,
@@ -86,42 +83,9 @@ class ProjectsContainer {
 
       this.projects.push(project);
       this.container.add(project.container);
-
-      if (i === Settings.PROJECTS.length - 1) {
-        project.container.add(this.endText);
-        // this.endText.position.copy(project.container.position);
-        // this.endText.position.y -= 0.1;
-
-        // this.container.add(this.endText);
-      }
     }
 
     scene.add(this.container);
-  }
-
-  createEndText() {
-    const endText = new Text();
-
-    endText.text = "Swipe again to go to beginning";
-    endText.font = "../../../fonts/VectoraLTStd-Bold.woff";
-    endText.fontSize = 0.08;
-    endText.color = "#ffffff";
-    endText.maxWidth = 2;
-    endText.anchorX = 0.55;
-    endText.anchorY = -0.2;
-    endText.letterSpacing = 0;
-    endText.lineHeight = 1;
-    endText.depthOffset = -1;
-
-    endText.sync();
-
-    return endText;
-  }
-
-  update() {
-    for (let i = 0; i < this.projects.length; i++) {
-      this.projects[i].update();
-    }
   }
 
   bendThumbnails(state, value) {

@@ -1,6 +1,6 @@
-//MIT License
-//Copyright (c) 2020-2021 Sean Bradley
-//https://github.com/Sean-Bradley/Bender/blob/main/LICENSE
+// MIT License
+// Copyright (c) 2020-2021 Sean Bradley
+// https://github.com/Sean-Bradley/Bender/blob/main/LICENSE
 export default class Bender {
   bend(geometry, axis, angle) {
     let theta = 0;

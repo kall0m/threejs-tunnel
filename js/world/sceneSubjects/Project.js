@@ -1,15 +1,13 @@
 import * as THREE from "three";
-import { gsap } from "gsap";
 import { Text } from "troika-three-text";
 
 import * as Settings from "../../constants.js";
-import Bender from "../../bender.js";
+import Bender from "../../Bender.js";
 const bender = new Bender();
 
 class Project {
-  constructor(title, img, width, height) {
+  constructor(title, width, height) {
     this.title = title;
-    this.img = img;
 
     this.mesh = new THREE.Object3D();
     this.mesh.matrixAutoUpdate = false;
@@ -22,22 +20,14 @@ class Project {
 
   setProject(width, height) {
     this.setMesh(width, height);
-    this.setTitle();
+    this.setTitle(width, height);
   }
 
   setMesh(width, height) {
-    const loader = new THREE.TextureLoader();
-    const texture = loader.load(this.img);
-
     const geometry = this.createGeometry(width, height);
+    const material = new THREE.MeshBasicMaterial();
 
-    const mesh = new THREE.Mesh(
-      geometry,
-      new THREE.MeshBasicMaterial({
-        map: this.img !== "" ? texture : ""
-        //side: THREE.BackSide
-      })
-    );
+    const mesh = new THREE.Mesh(geometry, material);
 
     this.mesh = mesh;
     mesh.position.y -= Settings.PROJECT_OFFSET_Y;
@@ -96,19 +86,25 @@ class Project {
     return geometry;
   }
 
-  setTitle() {
+  setTitle(width, height) {
+    // console.log("height", height);
+    // console.log("width", width);
+
     const title = new Text();
 
     title.text = this.title.toUpperCase();
     title.font = "../../../fonts/VectoraLTStd-Bold.woff";
-    title.fontSize = 0.1;
+    title.textAlign = "right";
+    title.fontSize = 0.15;
     title.color = "#ffffff";
-    title.maxWidth = 0.75;
-    title.anchorX = 0;
-    title.anchorY = 0.5;
+    title.maxWidth = width * 0.1;
+    title.anchorX = "right";
+    title.anchorY = height * 0.5;
     title.letterSpacing = 0;
     title.lineHeight = 1;
     title.depthOffset = -1;
+    title.outlineWidth = "10%";
+    title.strokeColor = new THREE.Color(0x000000);
 
     title.sync();
 
@@ -116,8 +112,6 @@ class Project {
     title.position.y -= Settings.PROJECT_OFFSET_Y;
     this.container.add(title);
   }
-
-  update() {}
 
   bendThumbnail(state, value) {
     this.mesh.morphTargetInfluences[state] = value;

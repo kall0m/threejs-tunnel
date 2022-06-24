@@ -18,12 +18,42 @@
 
 html,
 body {
-  background: #000000;
+  background: #050505;
   font-family: "Vectora LT Std", sans-serif;
   width: 100vw;
   height: 100%;
   position: fixed;
   overflow: hidden;
+}
+
+#loading-screen {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #050505;
+  opacity: 1;
+  transition: 1s opacity;
+}
+
+#loading-screen.fade-out {
+  opacity: 0;
+}
+
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: white;
+}
+
+#loader img {
+  width: 50vw;
 }
 
 button,
