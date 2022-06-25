@@ -37,59 +37,49 @@ class Project {
   // https://threejs.org/examples/webgl_morphtargets.html
   createGeometry(width, height) {
     const geometry = new THREE.PlaneBufferGeometry(width, height, 16, 16);
-    const geometry1 = new THREE.PlaneBufferGeometry(width, height, 16, 16);
-    const geometry2 = new THREE.PlaneBufferGeometry(width, height, 16, 16);
-
-    bender.bend(geometry1, "y", -Settings.PROJECT_BEND_POWER);
-    bender.bend(geometry2, "y", Settings.PROJECT_BEND_POWER);
 
     // create an empty array to  hold targets for the attribute we want to morph
     // morphing positions and normals is supported
     geometry.morphAttributes.position = [];
 
-    // the original positions of bend1
-    const positionAttributeBend1 = geometry1.attributes.position;
-    let bend1Positions = [];
-
-    for (let i = 0; i < positionAttributeBend1.count; i++) {
-      const x = positionAttributeBend1.getX(i);
-      const y = positionAttributeBend1.getY(i);
-      const z = positionAttributeBend1.getZ(i);
-
-      bend1Positions.push(x, y, z);
-    }
-
-    // the original positions of bend2
-    const positionAttributeBend2 = geometry2.attributes.position;
-    let bend2Positions = [];
-
-    for (let i = 0; i < positionAttributeBend2.count; i++) {
-      const x = positionAttributeBend2.getX(i);
-      const y = positionAttributeBend2.getY(i);
-      const z = positionAttributeBend2.getZ(i);
-
-      bend2Positions.push(x, y, z);
-    }
-
-    // add the bend 1 positions as the first morph target
+    // add the forward bend positions as the first morph target
     geometry.morphAttributes.position[0] = new THREE.Float32BufferAttribute(
-      bend1Positions,
+      this.getGeometryPositions(width, height, -Settings.PROJECT_BEND_POWER),
       3
     );
 
-    // add the bend 2 positions as the second morph target
+    // add the backward bend positions as the second morph target
     geometry.morphAttributes.position[1] = new THREE.Float32BufferAttribute(
-      bend2Positions,
+      this.getGeometryPositions(width, height, Settings.PROJECT_BEND_POWER),
       3
     );
 
     return geometry;
   }
 
-  setTitle(width, height) {
-    // console.log("height", height);
-    // console.log("width", width);
+  getGeometryPositions(width, height, bendPower) {
+    const geometry = new THREE.PlaneBufferGeometry(width, height, 16, 16);
 
+    bender.bend(geometry, "y", bendPower);
+
+    // the original positions of bent geometry
+    const positionAttributeGeometry = geometry.attributes.position;
+    let geometryPositions = [];
+
+    for (let i = 0; i < positionAttributeGeometry.count; i++) {
+      const x = positionAttributeGeometry.getX(i);
+      const y = positionAttributeGeometry.getY(i);
+      const z = positionAttributeGeometry.getZ(i);
+
+      geometryPositions.push(x, y, z);
+    }
+
+    geometry.dispose();
+
+    return geometryPositions;
+  }
+
+  setTitle(width, height) {
     const title = new Text();
 
     title.text = this.title.toUpperCase();

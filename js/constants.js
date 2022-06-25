@@ -77,10 +77,15 @@ export const PROJECT_SCALE = 0.8;
 
 // TUNNEL
 export const RADIUS = 300;
-export const TURNS = 3;
+export const TURNS = PROJECTS.length / 50;
 export const OBJ_PER_TURN = 600;
 export const ANGLE_STEP = (Math.PI * 2) / OBJ_PER_TURN;
 export const HEIGHT_STEP = 0.35;
+export const SHAPE_SEGMENTS = [3, 4, 6, 128];
+
+export function getRandomShapeSegments() {
+  return SHAPE_SEGMENTS[(SHAPE_SEGMENTS.length * Math.random()) << 0];
+}
 
 export function getHelixCoordinatesBy(counter) {
   const x = HEIGHT_STEP * counter;

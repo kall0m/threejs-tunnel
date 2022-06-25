@@ -37,6 +37,7 @@ class SceneManager {
     this.updateCameraCoordinates(0);
 
     this.tunnel = new Tunnel(this.scene);
+
     this.projectsContainer = new ProjectsContainer(this.scene, this.camera);
 
     this.currentProjectIndex = 0;
@@ -59,6 +60,7 @@ class SceneManager {
 
           this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
           isSwiping = true;
+
           this.animateCameraInitialState();
         }
       );
@@ -308,9 +310,12 @@ class SceneManager {
       duration: 4,
       ease: "power4.inOut",
       onComplete: () => {
-        isSwiping = false;
         prevComplete = true;
+        isSwiping = false;
         this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
+        setInterval(() => {
+          this.tunnel.changeSegmentsShape();
+        }, 1500);
       }
     });
   }
@@ -426,6 +431,7 @@ class SceneManager {
           },
           onComplete: () => {
             prevComplete = false;
+            this.tunnel.enableSegments(false);
           }
         },
         0
@@ -464,6 +470,9 @@ class SceneManager {
           y: "-=1.135",
           duration: 0.6,
           ease: "power2.inOut",
+          onStart: () => {
+            this.tunnel.enableSegments(true);
+          },
           onUpdate: () => {
             currentProjectThumbnail.updateMatrix();
           },
