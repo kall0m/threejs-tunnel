@@ -16,8 +16,11 @@ class Tunnel {
   }
 
   setTunnel(scene) {
+    let segment;
+
     for (let i = Settings.TURNS * Settings.OBJ_PER_TURN - 1; i >= -50; i--) {
-      const segment = this.createSegment(i);
+      //for (let i = -50; i < Settings.TURNS * Settings.OBJ_PER_TURN; i++) {
+      segment = this.createSegment(i);
       this.segments.push(segment);
       this.container.add(segment);
     }
@@ -56,15 +59,15 @@ class Tunnel {
 
     const mesh = new THREE.Mesh(geometry, material);
 
-    const helixVector = Settings.getHelixCoordinatesBy(counter);
+    const helixCoordinates = Settings.getHelixCoordinatesBy(counter);
 
-    mesh.position.set(helixVector.x, helixVector.y, helixVector.z);
-    mesh.rotation.x = Settings.ANGLE_STEP * counter;
+    mesh.position.copy(helixCoordinates.position);
+    mesh.rotation.copy(helixCoordinates.rotation);
 
     // rotate square by 45 degrees in radians
     // to make it parallel to viewport
     if (segments === 4) {
-      mesh.rotation.z = 45 * (Math.PI / 180);
+      //mesh.rotation.z = 45 * (Math.PI / 180);
     }
 
     return mesh;
@@ -88,7 +91,7 @@ class Tunnel {
           {
             visible: false
           },
-          i / 45
+          i / 15
         );
       }
 
@@ -99,7 +102,7 @@ class Tunnel {
         {
           visible: true
         },
-        i / 45
+        i / 15
       );
     }
 

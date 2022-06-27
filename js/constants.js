@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 // DATA
 export const PROJECTS = [
   {
@@ -52,21 +54,10 @@ export const SCREEN_SIZES = {
 
 // CAMERA
 export const CAMERA_FOV = 30;
-//(Math.atan(9 / 16) / Math.PI) * 180
 export const CAMERA_FOV_RADIANS = CAMERA_FOV * (Math.PI / 180);
 export const CAMERA_OFFSET = 1.5;
 
-// MAGIC NUMBERS
-export const cameraDistanceToThumbnail = 4.712;
-
 // PROJECT
-// width and height must follow the 16:9 ratio
-export const PROJECT_WIDTH =
-  2 *
-  Math.tan(CAMERA_FOV_RADIANS / 2) *
-  (SCREEN_SIZES.width / SCREEN_SIZES.height) *
-  cameraDistanceToThumbnail;
-export const PROJECT_HEIGTH = (9 / 16) * PROJECT_WIDTH;
 export const PROJECT_DISTANCE_BETWEEN = 4;
 export const PROJECT_OFFSET = 0.1;
 export const PROJECT_BEND_POWER = 1.2;
@@ -81,7 +72,7 @@ export const TURNS = PROJECTS.length / 50;
 export const OBJ_PER_TURN = 600;
 export const ANGLE_STEP = (Math.PI * 2) / OBJ_PER_TURN;
 export const HEIGHT_STEP = 0.35;
-export const SHAPE_SEGMENTS = [3, 4, 6, 128];
+export const SHAPE_SEGMENTS = [6, 128, 3, 4];
 
 export function getRandomShapeSegments() {
   return SHAPE_SEGMENTS[(SHAPE_SEGMENTS.length * Math.random()) << 0];
@@ -92,7 +83,12 @@ export function getHelixCoordinatesBy(counter) {
   const y = -Math.cos(ANGLE_STEP * counter) * RADIUS;
   const z = Math.sin(-ANGLE_STEP * counter) * RADIUS;
 
-  return { x, y, z };
+  var vector = new THREE.Object3D();
+
+  vector.position.set(x, y, z);
+  vector.rotation.x = ANGLE_STEP * counter;
+
+  return vector;
 }
 
 // REGENERATE

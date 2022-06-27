@@ -91,7 +91,7 @@ class SceneManager {
     renderer.setSize(Settings.SCREEN_SIZES.width, Settings.SCREEN_SIZES.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    document.body.appendChild(stats.dom);
+    //document.body.appendChild(stats.dom);
 
     return renderer;
   }
@@ -139,26 +139,15 @@ class SceneManager {
   }
 
   updateCameraCoordinates(i) {
-    const counter =
-      i * Settings.PROJECT_DISTANCE_BETWEEN -
-      Settings.PROJECT_OFFSET -
-      Settings.CAMERA_OFFSET;
+    const counter = i * Settings.PROJECT_DISTANCE_BETWEEN;
 
-    const helixVector = Settings.getHelixCoordinatesBy(counter);
+    const helixCoordinates = Settings.getHelixCoordinatesBy(counter);
 
-    this.camera.position.set(
-      helixVector.x +
-        Settings.HEIGHT_STEP +
-        tunnelMoveProperties.cameraPositionOffsetX,
-      helixVector.y,
-      helixVector.z
-    );
+    helixCoordinates.position.x +=
+      Settings.HEIGHT_STEP + tunnelMoveProperties.cameraPositionOffsetX;
 
-    this.camera.rotation.x =
-      Settings.ANGLE_STEP * counter +
-      tunnelMoveProperties.cameraRotationOffsetX;
-    this.camera.rotation.y = tunnelMoveProperties.cameraRotationOffsetY;
-    this.camera.rotation.z = tunnelMoveProperties.cameraRotationOffsetZ;
+    this.camera.position.copy(helixCoordinates.position);
+    this.camera.rotation.copy(helixCoordinates.rotation);
   }
 
   bendProjectThumbnails(state, morph) {
@@ -309,13 +298,16 @@ class SceneManager {
       cameraStep: 0,
       duration: 4,
       ease: "power4.inOut",
+      onStart: () => {
+        this.tunnel.changeSegmentsShape();
+      },
       onComplete: () => {
         prevComplete = true;
         isSwiping = false;
         this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
         setInterval(() => {
           this.tunnel.changeSegmentsShape();
-        }, 1500);
+        }, 5000);
       }
     });
   }
@@ -423,7 +415,7 @@ class SceneManager {
         currentProjectThumbnail.position,
         {
           //TODO investigate proper y so that the thumbnail is always at the top edge of the screen
-          y: "+=1.135",
+          y: "+=" + this.projectsContainer.screenTopEdgeY,
           duration: 0.6,
           ease: "power2.inOut",
           onUpdate: () => {
@@ -450,6 +442,29 @@ class SceneManager {
         },
         0
       )
+      // .to(
+      //   currentProject.container.rotation,
+      //   {
+      //     x: 0,
+      //     y: 0,
+      //     z: 0,
+      //     duration: 0.6,
+      //     ease: "power2.inOut",
+      //     onStart: () => {
+      //       console.log(
+      //         "currentProject.container.rotation before",
+      //         currentProject.container.rotation
+      //       );
+      //     },
+      //     onComplete: () => {
+      //       console.log(
+      //         "currentProject.container.rotation after",
+      //         currentProject.container.rotation
+      //       );
+      //     }
+      //   },
+      //   0
+      // )
       .to(
         projectContainerElement,
         {
@@ -467,7 +482,7 @@ class SceneManager {
       .to(
         currentProjectThumbnail.position,
         {
-          y: "-=1.135",
+          y: "-=" + this.projectsContainer.screenTopEdgeY,
           duration: 0.6,
           ease: "power2.inOut",
           onStart: () => {
@@ -496,6 +511,29 @@ class SceneManager {
         },
         0
       )
+      // .to(
+      //   currentProject.container.rotation,
+      //   {
+      //     x: currentProject.containerHelixRotation.x,
+      //     y: currentProject.containerHelixRotation.y,
+      //     z: currentProject.containerHelixRotation.z,
+      //     duration: 0.6,
+      //     ease: "power2.inOut",
+      //     onStart: () => {
+      //       console.log(
+      //         "currentProject.container.rotation before",
+      //         currentProject.container.rotation
+      //       );
+      //     },
+      //     onComplete: () => {
+      //       console.log(
+      //         "currentProject.container.rotation after",
+      //         currentProject.container.rotation
+      //       );
+      //     }
+      //   },
+      //   0
+      // )
       .to(
         projectContainerElement,
         {

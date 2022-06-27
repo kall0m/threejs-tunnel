@@ -15,6 +15,8 @@ class Project {
     this.container = new THREE.Group();
     this.container.matrixAutoUpdate = false;
 
+    this.containerHelixRotation = new THREE.Euler();
+
     this.setProject(width, height);
   }
 
