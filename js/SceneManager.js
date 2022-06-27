@@ -17,7 +17,7 @@ let isSwiping = false;
 
 const tunnelMoveProperties = {
   cameraStep: -25,
-  cameraPositionOffsetX: 0.175, //TODO investigate if calculation is possible
+  cameraPositionOffsetX: 0.175,
   cameraPositionOffsetY: 0,
   cameraPositionOffsetZ: 0,
   cameraRotationOffsetX: 0,
@@ -91,7 +91,7 @@ class SceneManager {
     renderer.setSize(Settings.SCREEN_SIZES.width, Settings.SCREEN_SIZES.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    //document.body.appendChild(stats.dom);
+    document.body.appendChild(stats.dom);
 
     return renderer;
   }
@@ -259,15 +259,12 @@ class SceneManager {
   openProject(event, projectContainerElement) {
     if (prevComplete) {
       const selectedProjectGroup = this.getSelectedProjectGroup(event);
-      const currentProjectThumbnail = this.projectsContainer.projects[
+      const currentProject = this.projectsContainer.projects[
         this.currentProjectIndex
-      ].mesh;
+      ];
 
       if (selectedProjectGroup) {
-        this.animateOpenProject(
-          currentProjectThumbnail,
-          projectContainerElement
-        );
+        this.animateOpenProject(currentProject, projectContainerElement);
       }
 
       return selectedProjectGroup;
@@ -278,14 +275,11 @@ class SceneManager {
 
   closeProject(projectContainerElement) {
     if (!prevComplete) {
-      const currentProjectThumbnail = this.projectsContainer.projects[
+      const currentProject = this.projectsContainer.projects[
         this.currentProjectIndex
-      ].mesh;
+      ];
 
-      this.animateCloseProject(
-        currentProjectThumbnail,
-        projectContainerElement
-      );
+      this.animateCloseProject(currentProject, projectContainerElement);
     }
   }
 
@@ -408,18 +402,17 @@ class SceneManager {
       );
   }
 
-  animateOpenProject(currentProjectThumbnail, projectContainerElement) {
+  animateOpenProject(currentProject, projectContainerElement) {
     gsap
       .timeline()
       .to(
-        currentProjectThumbnail.position,
+        currentProject.mesh.position,
         {
-          //TODO investigate proper y so that the thumbnail is always at the top edge of the screen
           y: "+=" + this.projectsContainer.screenTopEdgeY,
           duration: 0.6,
           ease: "power2.inOut",
           onUpdate: () => {
-            currentProjectThumbnail.updateMatrix();
+            currentProject.mesh.updateMatrix();
           },
           onComplete: () => {
             prevComplete = false;
@@ -429,7 +422,7 @@ class SceneManager {
         0
       )
       .to(
-        currentProjectThumbnail.scale,
+        currentProject.mesh.scale,
         {
           x: 1,
           y: 1,
@@ -437,34 +430,22 @@ class SceneManager {
           duration: 0.6,
           ease: "power2.inOut",
           onUpdate: () => {
-            currentProjectThumbnail.updateMatrix();
+            currentProject.mesh.updateMatrix();
           }
         },
         0
       )
-      // .to(
-      //   currentProject.container.rotation,
-      //   {
-      //     x: 0,
-      //     y: 0,
-      //     z: 0,
-      //     duration: 0.6,
-      //     ease: "power2.inOut",
-      //     onStart: () => {
-      //       console.log(
-      //         "currentProject.container.rotation before",
-      //         currentProject.container.rotation
-      //       );
-      //     },
-      //     onComplete: () => {
-      //       console.log(
-      //         "currentProject.container.rotation after",
-      //         currentProject.container.rotation
-      //       );
-      //     }
-      //   },
-      //   0
-      // )
+      .to(
+        currentProject.container.rotation,
+        {
+          x: 0,
+          y: 0,
+          z: 0,
+          duration: 0.6,
+          ease: "power2.inOut"
+        },
+        0
+      )
       .to(
         projectContainerElement,
         {
@@ -476,11 +457,11 @@ class SceneManager {
       );
   }
 
-  animateCloseProject(currentProjectThumbnail, projectContainerElement) {
+  animateCloseProject(currentProject, projectContainerElement) {
     gsap
       .timeline()
       .to(
-        currentProjectThumbnail.position,
+        currentProject.mesh.position,
         {
           y: "-=" + this.projectsContainer.screenTopEdgeY,
           duration: 0.6,
@@ -489,7 +470,7 @@ class SceneManager {
             this.tunnel.enableSegments(true);
           },
           onUpdate: () => {
-            currentProjectThumbnail.updateMatrix();
+            currentProject.mesh.updateMatrix();
           },
           onComplete: () => {
             prevComplete = true;
@@ -498,42 +479,30 @@ class SceneManager {
         0
       )
       .to(
-        currentProjectThumbnail.scale,
+        currentProject.mesh.scale,
         {
-          x: 0.8,
-          y: 0.8,
-          z: 0.8,
+          x: Settings.PROJECT_SCALE,
+          y: Settings.PROJECT_SCALE,
+          z: Settings.PROJECT_SCALE,
           duration: 0.6,
           ease: "power2.inOut",
           onUpdate: () => {
-            currentProjectThumbnail.updateMatrix();
+            currentProject.mesh.updateMatrix();
           }
         },
         0
       )
-      // .to(
-      //   currentProject.container.rotation,
-      //   {
-      //     x: currentProject.containerHelixRotation.x,
-      //     y: currentProject.containerHelixRotation.y,
-      //     z: currentProject.containerHelixRotation.z,
-      //     duration: 0.6,
-      //     ease: "power2.inOut",
-      //     onStart: () => {
-      //       console.log(
-      //         "currentProject.container.rotation before",
-      //         currentProject.container.rotation
-      //       );
-      //     },
-      //     onComplete: () => {
-      //       console.log(
-      //         "currentProject.container.rotation after",
-      //         currentProject.container.rotation
-      //       );
-      //     }
-      //   },
-      //   0
-      // )
+      .to(
+        currentProject.container.rotation,
+        {
+          x: currentProject.containerHelixRotation.x,
+          y: currentProject.containerHelixRotation.y,
+          z: currentProject.containerHelixRotation.z,
+          duration: 0.6,
+          ease: "power2.inOut"
+        },
+        0
+      )
       .to(
         projectContainerElement,
         {
