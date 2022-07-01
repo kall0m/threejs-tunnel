@@ -64,11 +64,11 @@ class Tunnel {
     mesh.position.copy(helixCoordinates.position);
     mesh.rotation.copy(helixCoordinates.rotation);
 
-    // rotate square by 45 degrees in radians
-    // to make it parallel to viewport
-    if (segments === 4) {
-      //mesh.rotation.z = 45 * (Math.PI / 180);
-    }
+    // // rotate square by 45 degrees in radians
+    // // to make it parallel to viewport
+    // if (segments === 4) {
+    //   mesh.rotation.z = 45 * (Math.PI / 180);
+    // }
 
     return mesh;
   }

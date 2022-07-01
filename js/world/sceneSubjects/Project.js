@@ -97,7 +97,7 @@ class Project {
 
     title.depthOffset = -1;
 
-    title.outlineWidth = "10%";
+    title.outlineWidth = "5%";
     title.outlineColor = new THREE.Color(0x000000);
 
     title.sync();

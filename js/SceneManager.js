@@ -36,6 +36,10 @@ class SceneManager {
 
     this.updateCameraCoordinates(0);
 
+    const color = 0x000000;
+    const density = 0.01;
+    this.scene.fog = new THREE.FogExp2(color, density);
+
     this.tunnel = new Tunnel(this.scene);
 
     this.projectsContainer = new ProjectsContainer(this.scene, this.camera);
@@ -52,6 +56,11 @@ class SceneManager {
         () => {
           const loadingScreen = document.getElementById("loading-screen");
           loadingScreen.classList.add("fade-out");
+
+          setTimeout(function () {
+            const homeLogo = document.getElementById("logo-home");
+            homeLogo.classList.add("logo-home--show");
+          }, 3500);
 
           // optional: remove loader from DOM via event listener
           loadingScreen.addEventListener("transitionend", (event) => {
@@ -91,7 +100,7 @@ class SceneManager {
     renderer.setSize(Settings.SCREEN_SIZES.width, Settings.SCREEN_SIZES.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    document.body.appendChild(stats.dom);
+    //document.body.appendChild(stats.dom);
 
     return renderer;
   }
@@ -323,6 +332,7 @@ class SceneManager {
         onComplete: () => {
           prevComplete = true;
           isSwiping = false;
+          this.updateCameraCoordinates(tunnelMoveProperties.cameraStep);
           this.currentProjectIndex = 0;
         }
       })
